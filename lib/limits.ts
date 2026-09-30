@@ -1,32 +1,32 @@
 import type { PlanTier } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { claveMes, inicioDelDia, parsearMes } from "@/lib/fechas";
+import { monthKey, startOfDay, parseMonth } from "@/lib/dates";
 
-/** Precios y límites por tier. Cambiar precio/límite = editar aquí, no la BD.
- *  `consultasMes: null` = sin límite. */
-export const LIMITES_TIER: Record<
+/** Prices and limits per tier. Changing a price or limit means editing here, not the DB.
+ *  `consultationsPerMonth: null` = unlimited. */
+export const TIER_LIMITS: Record<
   PlanTier,
-  { consultasMes: number | null; nombre: string; precioMXN: number }
+  { consultationsPerMonth: number | null; name: string; priceMXN: number }
 > = {
-  FREE: { consultasMes: 5, nombre: "Gratis", precioMXN: 0 },
-  PRO: { consultasMes: 50, nombre: "Pro", precioMXN: 399 },
-  ILIMITADO: { consultasMes: null, nombre: "Ilimitado", precioMXN: 799 },
+  FREE: { consultationsPerMonth: 5, name: "Gratis", priceMXN: 0 },
+  PRO: { consultationsPerMonth: 50, name: "Pro", priceMXN: 399 },
+  UNLIMITED: { consultationsPerMonth: null, name: "Ilimitado", priceMXN: 799 },
 };
 
-/** Cada llamada a la IA cuesta tokens reales; sin tope, regenerar la misma
- *  consulta es gasto ilimitado. Pasado el tope, el plan se ajusta a mano. */
-export const MAX_GENERACIONES_POR_CONSULTA = 3;
+/** Every AI call costs real tokens; without a cap, regenerating the same
+ *  consultation is unbounded spend. Past the cap, the plan is edited by hand. */
+export const MAX_GENERATIONS_PER_CONSULTATION = 3;
 
-/** Inicio del mes calendario actual visto desde México — mismo criterio que el
- *  dashboard. En Vercel el proceso corre en UTC: calcularlo con la hora local
- *  del proceso correría el corte de cuota 6 h. */
-export function inicioDeMes(): Date {
-  const { anio, mes } = parsearMes();
-  return inicioDelDia(`${claveMes(anio, mes)}-01`);
+/** Start of the current calendar month as seen from Mexico, same rule as the
+ *  dashboard. On Vercel the process runs in UTC: using the process's local time
+ *  would shift the quota cutover by 6 h. */
+export function startOfMonth(): Date {
+  const { year, month } = parseMonth();
+  return startOfDay(`${monthKey(year, month)}-01`);
 }
 
-export async function consultasUsadasEsteMes(userId: string): Promise<number> {
-  return prisma.consulta.count({
-    where: { userId, createdAt: { gte: inicioDeMes() } },
+export async function consultationsUsedThisMonth(userId: string): Promise<number> {
+  return prisma.consultation.count({
+    where: { userId, createdAt: { gte: startOfMonth() } },
   });
 }

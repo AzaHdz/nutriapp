@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "db:seed": "node --env-file=.env --env-file=.env.local prisma/seed.mjs",
-    "solicitudes:export": "node --env-file=.env --env-file=.env.local scripts/export-solicitudes.mjs",
-    "solicitudes:analizar": "node --env-file=.env --env-file=.env.local scripts/analizar-solicitudes.mjs",
+    "requests:export": "node --env-file=.env --env-file=.env.local scripts/export-feature-requests.mjs",
+    "requests:analyze": "node --env-file=.env --env-file=.env.local scripts/analyze-feature-requests.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

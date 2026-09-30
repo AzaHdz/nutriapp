@@ -12,14 +12,14 @@ const tones = {
   accent: "bg-accent-soft border-warning-brd text-accent",
 } as const;
 
-/** Círculo con iniciales del nombre. */
+/** Circle with the name's initials. */
 export function Avatar({
-  nombre,
+  name,
   size = "md",
   tone = "primary",
   className,
 }: {
-  nombre?: string | null;
+  name?: string | null;
   size?: keyof typeof sizes;
   tone?: keyof typeof tones;
   className?: string;
@@ -34,7 +34,7 @@ export function Avatar({
       )}
       aria-hidden
     >
-      {initials(nombre)}
+      {initials(name)}
     </span>
   );
 }

@@ -5,18 +5,18 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 
-const PerfilInput = z.object({
-  nombre: z.string().min(2, "El nombre es demasiado corto"),
-  cedula: z.string().max(30).optional().or(z.literal("")),
+const ProfileInput = z.object({
+  name: z.string().min(2, "El nombre es demasiado corto"),
+  licenseNumber: z.string().max(30).optional().or(z.literal("")),
   logoUrl: z.string().url("La URL del logo no es válida").optional().or(z.literal("")),
-  estiloPrompt: z.string().max(1500, "Máximo 1500 caracteres").optional().or(z.literal("")),
+  promptStyle: z.string().max(1500, "Máximo 1500 caracteres").optional().or(z.literal("")),
 });
 
-/** Actualiza el perfil del nutriólogo (datos que encabezan el PDF). */
-export async function actualizarPerfil(formData: FormData) {
+/** Updates the nutritionist's profile (the data in the PDF header). */
+export async function updateProfile(formData: FormData) {
   const { userId } = await requireUser();
 
-  const parsed = PerfilInput.safeParse(Object.fromEntries(formData));
+  const parsed = ProfileInput.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues.map((i) => i.message).join(", ") };
   }
@@ -25,14 +25,14 @@ export async function actualizarPerfil(formData: FormData) {
   await prisma.user.update({
     where: { id: userId },
     data: {
-      name: d.nombre,
-      cedula: d.cedula || null,
+      name: d.name,
+      licenseNumber: d.licenseNumber || null,
       logoUrl: d.logoUrl || null,
-      estiloPrompt: d.estiloPrompt?.trim() || null,
+      promptStyle: d.promptStyle?.trim() || null,
     },
   });
 
-  // Refresca el nombre del sidebar (layout) y los datos del PDF
+  // Refreshes the sidebar name (layout) and the PDF data
   revalidatePath("/", "layout");
   return { ok: true as const };
 }

@@ -1,37 +1,38 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { imc, clasificacionIMC } from "@/lib/calculos";
-import { fechaCorta } from "@/lib/format";
+import { bmi, classifyBmi } from "@/lib/calculations";
+import { formatShortDate } from "@/lib/format";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { buttonVariants } from "@/components/ui/Button";
 
-const rangoColor = {
+const rangeText = {
   in: "text-range-in",
   out: "text-range-out",
   critical: "text-range-critical",
 } as const;
 
-export default async function PacientesPage({
+export default async function PatientsPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; filtro?: string }>;
 }) {
   const { userId } = await requireUser();
-  const { q, filtro } = await searchParams;
+  // `filtro` is a URL query param, which stays in Spanish
+  const { q, filtro: filter } = await searchParams;
   const query = q?.trim();
 
-  const total = await prisma.paciente.count({ where: { userId } });
+  const total = await prisma.patient.count({ where: { userId } });
 
-  const pacientes = await prisma.paciente.findMany({
+  const patients = await prisma.patient.findMany({
     where: {
       userId,
       ...(query
         ? {
             OR: [
-              { nombre: { contains: query, mode: "insensitive" } },
+              { name: { contains: query, mode: "insensitive" } },
               { email: { contains: query, mode: "insensitive" } },
             ],
           }
@@ -39,19 +40,19 @@ export default async function PacientesPage({
     },
     orderBy: { createdAt: "desc" },
     include: {
-      _count: { select: { consultas: true } },
-      consultas: { orderBy: { createdAt: "desc" }, take: 1 },
+      _count: { select: { consultations: true } },
+      consultations: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
 
-  // Filtro "Plan pendiente" (computado en memoria sobre la última consulta)
-  const filtrados =
-    filtro === "pendiente"
-      ? pacientes.filter((p) => {
-          const u = p.consultas[0];
-          return u?.planFinal && !u.aprobadoAt;
+  // "Plan pendiente" filter (computed in memory from the latest consultation)
+  const filtered =
+    filter === "pendiente"
+      ? patients.filter((p) => {
+          const latest = p.consultations[0];
+          return latest?.finalPlan && !latest.approvedAt;
         })
-      : pacientes;
+      : patients;
 
   return (
     <div className="flex flex-col gap-5">
@@ -64,7 +65,7 @@ export default async function PacientesPage({
         </Link>
       </div>
 
-      {/* Búsqueda + filtros */}
+      {/* Search + filters */}
       <div className="flex flex-wrap items-center gap-2.5">
         <form className="flex max-w-sm flex-1 items-center gap-2 rounded-pill border border-border-strong bg-surface px-4 py-2">
           <SearchIcon />
@@ -74,12 +75,12 @@ export default async function PacientesPage({
             placeholder="Buscar por nombre o correo…"
             className="w-full bg-transparent text-sm text-text placeholder:text-text-3 focus:outline-none"
           />
-          {filtro && <input type="hidden" name="filtro" value={filtro} />}
+          {filter && <input type="hidden" name="filtro" value={filter} />}
         </form>
-        <FiltroChip label="Todos" activo={!filtro} href={query ? `/pacientes?q=${query}` : "/pacientes"} />
-        <FiltroChip
+        <FilterChip label="Todos" active={!filter} href={query ? `/pacientes?q=${query}` : "/pacientes"} />
+        <FilterChip
           label="Plan pendiente"
-          activo={filtro === "pendiente"}
+          active={filter === "pendiente"}
           href={`/pacientes?filtro=pendiente${query ? `&q=${query}` : ""}`}
         />
       </div>
@@ -94,20 +95,20 @@ export default async function PacientesPage({
           <span>IMC</span>
         </div>
 
-        {filtrados.length === 0 ? (
+        {filtered.length === 0 ? (
           <p className="px-5 py-10 text-center text-sm text-text-3">
-            {query || filtro ? "Ningún paciente coincide con el filtro." : "Sin pacientes todavía. Crea el primero para empezar."}
+            {query || filter ? "Ningún paciente coincide con el filtro." : "Sin pacientes todavía. Crea el primero para empezar."}
           </p>
         ) : (
-          filtrados.map((p) => {
-            const u = p.consultas[0];
-            const valorIMC = u ? imc(u.peso, u.altura) : null;
-            const clase = valorIMC != null ? clasificacionIMC(valorIMC) : null;
-            const estado = !u
+          filtered.map((p) => {
+            const latest = p.consultations[0];
+            const bmiValue = latest ? bmi(latest.weight, latest.height) : null;
+            const bmiClass = bmiValue != null ? classifyBmi(bmiValue) : null;
+            const planBadge = !latest
               ? { tone: "neutral" as const, label: "Sin consulta" }
-              : u.aprobadoAt
+              : latest.approvedAt
                 ? { tone: "success" as const, label: "Aprobado" }
-                : u.planFinal
+                : latest.finalPlan
                   ? { tone: "warning" as const, label: "Pendiente" }
                   : { tone: "neutral" as const, label: "Sin plan" };
             return (
@@ -117,22 +118,22 @@ export default async function PacientesPage({
                 className="grid grid-cols-[2fr_1.1fr_1.3fr_1.1fr_0.7fr] items-center gap-2 border-b border-border px-5 py-3 transition-colors last:border-0 hover:bg-surface-3"
               >
                 <span className="flex items-center gap-2.5">
-                  <Avatar nombre={p.nombre} />
+                  <Avatar name={p.name} />
                   <span className="min-w-0">
-                    <span className="block truncate text-[13.5px] font-semibold text-text">{p.nombre}</span>
+                    <span className="block truncate text-[13.5px] font-semibold text-text">{p.name}</span>
                     <span className="block truncate text-[11.5px] text-text-3">{p.email ?? "—"}</span>
                   </span>
                 </span>
                 <span className="font-mono text-[12.5px] tabular-nums text-text-2">
-                  {u ? fechaCorta(u.createdAt) : "—"}
+                  {latest ? formatShortDate(latest.createdAt) : "—"}
                 </span>
-                <span className="truncate text-[13px] text-text">{u?.objetivos ?? "—"}</span>
+                <span className="truncate text-[13px] text-text">{latest?.goals ?? "—"}</span>
                 <span>
-                  <Badge tone={estado.tone}>{estado.label}</Badge>
+                  <Badge tone={planBadge.tone}>{planBadge.label}</Badge>
                 </span>
-                <span className={`flex items-center gap-1.5 font-mono text-[12.5px] tabular-nums ${clase ? rangoColor[clase.rango] : "text-text-3"}`}>
-                  {valorIMC != null ? valorIMC.toFixed(1) : "—"}
-                  {clase && <span className={`size-1.5 rounded-full ${bgRango[clase.rango]}`} />}
+                <span className={`flex items-center gap-1.5 font-mono text-[12.5px] tabular-nums ${bmiClass ? rangeText[bmiClass.range] : "text-text-3"}`}>
+                  {bmiValue != null ? bmiValue.toFixed(1) : "—"}
+                  {bmiClass && <span className={`size-1.5 rounded-full ${rangeDot[bmiClass.range]}`} />}
                 </span>
               </Link>
             );
@@ -141,24 +142,24 @@ export default async function PacientesPage({
       </Card>
 
       <p className="text-[12.5px] text-text-3">
-        Mostrando {filtrados.length} de {total} paciente{total === 1 ? "" : "s"}
+        Mostrando {filtered.length} de {total} paciente{total === 1 ? "" : "s"}
       </p>
     </div>
   );
 }
 
-const bgRango = {
+const rangeDot = {
   in: "bg-range-in",
   out: "bg-range-out",
   critical: "bg-range-critical",
 } as const;
 
-function FiltroChip({ label, activo, href }: { label: string; activo: boolean; href: string }) {
+function FilterChip({ label, active, href }: { label: string; active: boolean; href: string }) {
   return (
     <Link
       href={href}
       className={
-        activo
+        active
           ? "rounded-pill border border-primary-soft-brd bg-primary-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-primary"
           : "rounded-pill border border-border-strong px-3.5 py-1.5 text-[12.5px] font-medium text-text-2 transition-colors hover:bg-surface-3"
       }

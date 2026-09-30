@@ -8,8 +8,8 @@ import { Input, Textarea, Select } from "@/components/ui/Input";
 
 export const metadata = { title: "Planify — Kitchen sink UI" };
 
-/** Vitrina de todos los primitivos del sistema de diseño 1c.
- *  Ruta pública (fuera del grupo (app)) para revisar el look en claro/oscuro. */
+/** Showcase of every primitive in design system 1c.
+ *  Public route (outside the (app) group) for checking the look in light/dark. */
 export default function UIPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -26,7 +26,7 @@ export default function UIPage() {
       </header>
 
       <div className="mt-10 flex flex-col gap-12">
-        {/* Tipografía */}
+        {/* Typography */}
         <Section title="Tipografía">
           <div className="flex flex-col gap-2">
             <p className="font-display text-3xl font-bold text-text">
@@ -41,7 +41,7 @@ export default function UIPage() {
           </div>
         </Section>
 
-        {/* Botones */}
+        {/* Buttons */}
         <Section title="Botones">
           <div className="flex flex-wrap items-center gap-3">
             <Button variant="primary">Primary</Button>
@@ -70,7 +70,7 @@ export default function UIPage() {
           </div>
         </Section>
 
-        {/* Cifras clínicas */}
+        {/* Clinical figures */}
         <Section title="Cifras clínicas (Stat) con rango">
           <Card className="p-5">
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -82,32 +82,32 @@ export default function UIPage() {
           </Card>
         </Section>
 
-        {/* Formularios */}
+        {/* Forms */}
         <Section title="Formularios">
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nombre" htmlFor="ks-nombre">
-              <Input id="ks-nombre" placeholder="María Fernanda López" />
+            <Field label="Nombre" htmlFor="ks-name">
+              <Input id="ks-name" placeholder="María Fernanda López" />
             </Field>
-            <Field label="Género" htmlFor="ks-genero">
-              <Select id="ks-genero" defaultValue="FEMENINO">
-                <option value="FEMENINO">Femenino</option>
-                <option value="MASCULINO">Masculino</option>
-                <option value="OTRO">Otro</option>
+            <Field label="Género" htmlFor="ks-gender">
+              <Select id="ks-gender" defaultValue="FEMALE">
+                <option value="FEMALE">Femenino</option>
+                <option value="MALE">Masculino</option>
+                <option value="OTHER">Otro</option>
               </Select>
             </Field>
             <Field label="Email" htmlFor="ks-email" hint="Opcional, para enviar el plan.">
               <Input id="ks-email" type="email" placeholder="tu@correo.com" />
             </Field>
-            <Field label="Peso (kg)" htmlFor="ks-peso" error="Ingresa un número mayor a 0.">
-              <Input id="ks-peso" type="number" defaultValue={-1} />
+            <Field label="Peso (kg)" htmlFor="ks-weight" error="Ingresa un número mayor a 0.">
+              <Input id="ks-weight" type="number" defaultValue={-1} />
             </Field>
-            <Field label="Notas" htmlFor="ks-notas" className="sm:col-span-2">
-              <Textarea id="ks-notas" rows={3} placeholder="Observaciones de la consulta…" />
+            <Field label="Notas" htmlFor="ks-notes" className="sm:col-span-2">
+              <Textarea id="ks-notes" rows={3} placeholder="Observaciones de la consulta…" />
             </Field>
           </div>
         </Section>
 
-        {/* Superficies */}
+        {/* Surfaces */}
         <Section title="Superficies y bordes">
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-card border border-border bg-surface p-4 text-sm text-text-2">
@@ -122,7 +122,7 @@ export default function UIPage() {
           </div>
         </Section>
 
-        {/* Feedback semántico */}
+        {/* Semantic feedback */}
         <Section title="Bloques semánticos">
           <div className="flex flex-col gap-3">
             <Callout tone="success">Plan aprobado y listo para exportar.</Callout>

@@ -1,22 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { LIMITES_TIER, consultasUsadasEsteMes } from "@/lib/limits";
+import { TIER_LIMITS, consultationsUsedThisMonth } from "@/lib/limits";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { AjustesForm } from "@/components/AjustesForm";
+import { SettingsForm } from "@/components/SettingsForm";
 
-export default async function AjustesPage() {
+export default async function SettingsPage() {
   const { userId, tier } = await requireUser();
 
-  const [user, usadasMes] = await Promise.all([
+  const [user, usedThisMonth] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { name: true, cedula: true, logoUrl: true, estiloPrompt: true },
+      select: { name: true, licenseNumber: true, logoUrl: true, promptStyle: true },
     }),
-    consultasUsadasEsteMes(userId),
+    consultationsUsedThisMonth(userId),
   ]);
 
-  const plan = LIMITES_TIER[tier];
+  const plan = TIER_LIMITS[tier];
 
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6">
@@ -27,22 +27,22 @@ export default async function AjustesPage() {
         </p>
       </div>
 
-      <AjustesForm
-        nombre={user?.name ?? ""}
-        cedula={user?.cedula ?? ""}
+      <SettingsForm
+        name={user?.name ?? ""}
+        licenseNumber={user?.licenseNumber ?? ""}
         logoUrl={user?.logoUrl ?? ""}
-        estiloPrompt={user?.estiloPrompt ?? ""}
+        promptStyle={user?.promptStyle ?? ""}
       />
 
       <Card className="p-4.5">
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-bold text-text">Tu plan</span>
-          <Badge tone={tier === "FREE" ? "neutral" : "primary"}>{plan.nombre}</Badge>
+          <Badge tone={tier === "FREE" ? "neutral" : "primary"}>{plan.name}</Badge>
         </div>
         <p className="text-[13px] text-text-2">
-          {plan.consultasMes === null
+          {plan.consultationsPerMonth === null
             ? "Consultas ilimitadas."
-            : `${usadasMes} de ${plan.consultasMes} consultas usadas este mes.`}
+            : `${usedThisMonth} de ${plan.consultationsPerMonth} consultas usadas este mes.`}
         </p>
         <p className="mt-1.5 text-[11.5px] text-text-3">
           Los cambios de plan se gestionan con el administrador de Planify.

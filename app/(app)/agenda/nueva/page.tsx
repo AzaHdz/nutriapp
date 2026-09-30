@@ -1,25 +1,26 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { CitaForm } from "@/components/CitaForm";
+import { AppointmentForm } from "@/components/AppointmentForm";
 import { buttonVariants } from "@/components/ui/Button";
-import { hoyClave } from "@/lib/fechas";
+import { todayKey } from "@/lib/dates";
 
-export default async function NuevaCitaPage({
+export default async function NewAppointmentPage({
   searchParams,
 }: {
   searchParams: Promise<{ dia?: string; paciente?: string }>;
 }) {
   const { userId } = await requireUser();
+  // `dia` and `paciente` are URL query params, which stay in Spanish
   const sp = await searchParams;
 
-  const pacientes = await prisma.paciente.findMany({
+  const patients = await prisma.patient.findMany({
     where: { userId },
-    select: { id: true, nombre: true },
-    orderBy: { nombre: "asc" },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
   });
 
-  const dia = sp.dia && /^\d{4}-\d{2}-\d{2}$/.test(sp.dia) ? sp.dia : hoyClave();
+  const day = sp.dia && /^\d{4}-\d{2}-\d{2}$/.test(sp.dia) ? sp.dia : todayKey();
 
   return (
     <div className="mx-auto max-w-lg">
@@ -33,7 +34,7 @@ export default async function NuevaCitaPage({
 
       <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-text">Nueva cita</h1>
 
-      {pacientes.length === 0 ? (
+      {patients.length === 0 ? (
         <div className="mt-6 rounded-card border border-dashed border-border-strong p-8 text-center">
           <p className="text-sm text-text-3">
             Necesitas al menos un paciente para agendar una cita.
@@ -46,7 +47,7 @@ export default async function NuevaCitaPage({
           </Link>
         </div>
       ) : (
-        <CitaForm pacientes={pacientes} valores={{ fecha: dia, pacienteId: sp.paciente }} />
+        <AppointmentForm patients={patients} values={{ date: day, patientId: sp.paciente }} />
       )}
     </div>
   );

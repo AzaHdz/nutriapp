@@ -1,31 +1,31 @@
-import type { PlanAlimenticio } from "@/lib/ai/planSchema";
+import type { MealPlan } from "@/lib/ai/planSchema";
 
-export type DatosParaPlan = {
-  // Solo datos clínicos — NUNCA nombre/email/teléfono del paciente (minimización de datos)
-  edadAnios: number;
-  genero: "FEMENINO" | "MASCULINO" | "OTRO";
-  pesoKg: number;
-  alturaCm: number;
-  medidas: {
-    cinturaCm?: number | null;
-    caderaCm?: number | null;
-    brazoCm?: number | null;
-    grasaCorporalPct?: number | null;
+export type PlanInput = {
+  // Clinical data only — NEVER the patient's name/email/phone (data minimization)
+  ageYears: number;
+  gender: "FEMALE" | "MALE" | "OTHER";
+  weightKg: number;
+  heightCm: number;
+  measurements: {
+    waistCm?: number | null;
+    hipCm?: number | null;
+    armCm?: number | null;
+    bodyFatPct?: number | null;
   };
-  objetivos: string;
-  restricciones: string;
+  goals: string;
+  restrictions: string;
 };
 
-export type OpcionesPlan = {
-  // Preferencias de estilo del nutriólogo (User.estiloPrompt) — se inyectan
-  // en el turno de usuario del prompt, delimitadas como datos
-  estiloNutriologo?: string | null;
+export type PlanOptions = {
+  // The nutritionist's style preferences (User.promptStyle). Injected into the
+  // user turn of the prompt, delimited as data.
+  nutritionistStyle?: string | null;
 };
 
-export type ResultadoPlan = {
-  plan: PlanAlimenticio;
+export type PlanResult = {
+  plan: MealPlan;
   promptVersion: string;
-  modelo: string;
+  model: string;
   inputTokens: number;
   outputTokens: number;
 };

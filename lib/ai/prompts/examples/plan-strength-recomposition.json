@@ -1,0 +1,286 @@
+{
+  "dailyKcalTarget": 2750,
+  "macros": {
+    "protein_g": 206,
+    "carbs_g": 275,
+    "fat_g": 92
+  },
+  "meals": [
+    {
+      "name": "Desayuno",
+      "suggestedTime": "10:30 am",
+      "options": [
+        {
+          "description": "Huevos revueltos con avena y crema de almendra",
+          "foods": [
+            "4 claras de huevo y 2 huevos enteros revueltos",
+            "1 taza de avena cocida con 1 plátano",
+            "2 cucharadas de mantequilla de almendra"
+          ],
+          "approxKcal": 680
+        },
+        {
+          "description": "Tacos de pavo con aguacate",
+          "foods": [
+            "3 tortillas integrales",
+            "150 g de pavo",
+            "aguacate",
+            "1 taza de fresas"
+          ],
+          "approxKcal": 620
+        },
+        {
+          "description": "Yogur griego con granola",
+          "foods": [
+            "2 tazas de yogur griego",
+            "granola y miel",
+            "1/2 taza de arándanos"
+          ],
+          "approxKcal": 650
+        },
+        {
+          "description": "Huevos con espinacas y queso",
+          "foods": [
+            "3 huevos revueltos con espinacas y queso",
+            "2 tostadas integrales",
+            "1 naranja"
+          ],
+          "approxKcal": 630
+        },
+        {
+          "description": "Batido de proteína con huevos duros",
+          "foods": [
+            "1 batido de proteína con 2 cucharadas de avena y frutas congeladas",
+            "3 huevos duros"
+          ],
+          "approxKcal": 640
+        }
+      ]
+    },
+    {
+      "name": "Comida",
+      "suggestedTime": "2:00 pm",
+      "options": [
+        {
+          "description": "Pechuga a la parrilla con quinoa",
+          "foods": [
+            "150 g de pechuga de pollo a la parrilla",
+            "1 taza de quinoa cocida",
+            "ensalada de espinacas con 1 cda de aceite de oliva"
+          ],
+          "approxKcal": 700
+        },
+        {
+          "description": "Res magra con papas al horno",
+          "foods": [
+            "200 g de carne de res magra asada",
+            "2 papas al horno",
+            "1 taza de ensalada de repollo"
+          ],
+          "approxKcal": 760
+        },
+        {
+          "description": "Pollo al horno con pasta integral",
+          "foods": [
+            "200 g de pollo al horno",
+            "1 taza de pasta integral con salsa de tomate",
+            "1/2 aguacate"
+          ],
+          "approxKcal": 740
+        },
+        {
+          "description": "Atún con garbanzos",
+          "foods": [
+            "180 g de atún enlatado en agua (escurrido)",
+            "1 taza de garbanzos",
+            "ensalada verde con 1 cda de aceite de oliva"
+          ],
+          "approxKcal": 700
+        },
+        {
+          "description": "Bowl de pavo molido",
+          "foods": [
+            "200 g de pavo molido",
+            "espinacas salteadas",
+            "1 taza de arroz",
+            "1 plátano"
+          ],
+          "approxKcal": 760
+        }
+      ]
+    },
+    {
+      "name": "Colación",
+      "suggestedTime": "5:00 pm",
+      "options": [
+        {
+          "description": "Batido de proteína con plátano y crema de maní",
+          "foods": [
+            "1 batido de proteína",
+            "1 plátano",
+            "2 cucharadas de mantequilla de maní"
+          ],
+          "approxKcal": 400
+        },
+        {
+          "description": "Batido de proteína con leche y avena",
+          "foods": [
+            "1 batido de proteína con leche",
+            "1 plátano",
+            "2 cucharadas de avena"
+          ],
+          "approxKcal": 400
+        },
+        {
+          "description": "Batido verde con manzana",
+          "foods": [
+            "1 batido de proteína con 1 taza de espinaca",
+            "1 manzana",
+            "10 almendras"
+          ],
+          "approxKcal": 370
+        },
+        {
+          "description": "Batido de proteína con cacao",
+          "foods": [
+            "1 batido de proteína con 1 cucharada de cacao",
+            "1 plátano"
+          ],
+          "approxKcal": 360
+        },
+        {
+          "description": "Requesón con piña",
+          "foods": [
+            "1 taza de requesón",
+            "1 taza de piña",
+            "8 nueces"
+          ],
+          "approxKcal": 380
+        }
+      ]
+    },
+    {
+      "name": "Cena",
+      "suggestedTime": "8:00 pm",
+      "options": [
+        {
+          "description": "Salmón a la parrilla con arroz integral",
+          "foods": [
+            "200 g de salmón a la parrilla",
+            "1 taza de arroz integral",
+            "1 taza de brócoli al vapor"
+          ],
+          "approxKcal": 700
+        },
+        {
+          "description": "Tilapia al horno con frijoles",
+          "foods": [
+            "150 g de tilapia al horno",
+            "1 taza de verduras al vapor",
+            "1 taza de frijoles"
+          ],
+          "approxKcal": 640
+        },
+        {
+          "description": "Cerdo asado con puré de papa",
+          "foods": [
+            "150 g de lomo de cerdo asado",
+            "1 taza de puré de papa",
+            "1 taza de zanahorias al vapor"
+          ],
+          "approxKcal": 680
+        },
+        {
+          "description": "Pollo a la barbacoa con arroz salvaje",
+          "foods": [
+            "200 g de pollo a la barbacoa",
+            "1 taza de arroz salvaje",
+            "1 taza de maíz al vapor"
+          ],
+          "approxKcal": 700
+        },
+        {
+          "description": "Filete de pescado con farro",
+          "foods": [
+            "150 g de filete de pescado a la parrilla",
+            "1 taza de farro cocido",
+            "1 taza de brócoli"
+          ],
+          "approxKcal": 660
+        }
+      ]
+    },
+    {
+      "name": "Colación post-entreno",
+      "suggestedTime": "después de la rutina",
+      "options": [
+        {
+          "description": "Yogur griego con nueces",
+          "foods": [
+            "1 taza de yogur griego",
+            "1/4 de taza de nueces"
+          ],
+          "approxKcal": 330
+        },
+        {
+          "description": "Barrita energética con fruta",
+          "foods": [
+            "1 barrita energética",
+            "1 fruta"
+          ],
+          "approxKcal": 310
+        },
+        {
+          "description": "Pan integral con lentejas",
+          "foods": [
+            "2 rebanadas de pan integral",
+            "1/2 taza de lentejas"
+          ],
+          "approxKcal": 320
+        },
+        {
+          "description": "Plátano con crema de maní",
+          "foods": [
+            "1 plátano",
+            "2 cucharadas de mantequilla de maní"
+          ],
+          "approxKcal": 330
+        },
+        {
+          "description": "Batido de proteína con crema de almendra",
+          "foods": [
+            "1 batido de proteína",
+            "1 cucharada de mantequilla de almendra"
+          ],
+          "approxKcal": 300
+        }
+      ]
+    }
+  ],
+  "generalRecommendations": [
+    "Beber abundante agua: 2 litros de agua natural COMO MÍNIMO al día.",
+    "Preferir los alimentos al vapor, crudos o a la plancha.",
+    "Realizar actividad física por lo menos 30 minutos diarios, ejercicios de fuerza.",
+    "Si te quedas con hambre puedes comer gelatina de agua light, verduras, paletas y raspados de agua de hielo.",
+    "Cuida tu sueño: duerme mínimo 6 horas diarias seguidas."
+  ],
+  "supplements": [
+    {
+      "item": "Omega 3",
+      "timing": "después del desayuno"
+    },
+    {
+      "item": "Zinc + vitamina C",
+      "timing": "después del desayuno"
+    },
+    {
+      "item": "Magnesio",
+      "timing": "antes de dormir"
+    },
+    {
+      "item": "Cardo mariano",
+      "timing": "antes de dormir"
+    }
+  ],
+  "warnings": []
+}

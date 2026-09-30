@@ -1,5 +1,5 @@
-/** Une clases condicionalmente. Las variantes de nuestros primitivos no se solapan,
- *  así que un join simple basta (sin clsx ni tailwind-merge). */
+/** Joins classes conditionally. Our primitives' variants never overlap,
+ *  so a plain join is enough (no clsx or tailwind-merge). */
 export function cn(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(" ");
 }

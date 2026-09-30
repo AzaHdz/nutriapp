@@ -2,20 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { eliminarCita } from "@/app/actions/citas";
-import { CitaForm } from "@/components/CitaForm";
+import { deleteAppointment } from "@/app/actions/appointments";
+import { AppointmentForm } from "@/components/AppointmentForm";
 import { Button } from "@/components/ui/Button";
-import { claveDia, horaEnZona } from "@/lib/fechas";
+import { dayKey, timeInZone } from "@/lib/dates";
 
-export default async function EditarCitaPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditAppointmentPage({ params }: { params: Promise<{ id: string }> }) {
   const { userId } = await requireUser();
   const { id } = await params;
 
-  const cita = await prisma.cita.findFirst({
-    where: { id, userId }, // el filtro por userId es lo que impide tocar citas ajenas
-    include: { paciente: { select: { nombre: true } } },
+  const appointment = await prisma.appointment.findFirst({
+    where: { id, userId }, // the userId filter is what blocks touching other accounts' appointments
+    include: { patient: { select: { name: true } } },
   });
-  if (!cita) notFound();
+  if (!appointment) notFound();
 
   return (
     <div className="mx-auto max-w-lg">
@@ -31,15 +31,15 @@ export default async function EditarCitaPage({ params }: { params: Promise<{ id:
         Reprogramar cita
       </h1>
 
-      <CitaForm
-        pacientes={[]}
-        nombrePaciente={cita.paciente.nombre}
-        valores={{
-          citaId: cita.id,
-          fecha: claveDia(cita.inicioAt),
-          hora: horaEnZona(cita.inicioAt),
-          duracionMin: cita.duracionMin,
-          notas: cita.notas,
+      <AppointmentForm
+        patients={[]}
+        patientName={appointment.patient.name}
+        values={{
+          appointmentId: appointment.id,
+          date: dayKey(appointment.startsAt),
+          time: timeInZone(appointment.startsAt),
+          durationMin: appointment.durationMin,
+          notes: appointment.notes,
         }}
       />
 
@@ -48,8 +48,8 @@ export default async function EditarCitaPage({ params }: { params: Promise<{ id:
           Si el paciente avisó que no viene, cancélala desde la agenda: así queda el registro.
           Eliminar es para citas creadas por error y no se puede deshacer.
         </p>
-        <form action={eliminarCita} className="mt-3">
-          <input type="hidden" name="citaId" value={cita.id} />
+        <form action={deleteAppointment} className="mt-3">
+          <input type="hidden" name="appointmentId" value={appointment.id} />
           <Button type="submit" variant="destructive" size="sm">
             Eliminar cita
           </Button>

@@ -7,54 +7,54 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ── Modelos de Auth.js (no tocar nombres/campos: los usa el PrismaAdapter) ──
+// ── Auth.js models (don't rename models/fields: the PrismaAdapter uses them) ──
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?
-  email         String     @unique
-  emailVerified DateTime?
-  image         String?
-  passwordHash  String? // login con email+contraseña (Credentials provider)
-  // Campos propios del nutriólogo
-  cedula        String? // cédula profesional — aparece en el PDF
-  logoUrl       String?
-  estiloPrompt  String? // preferencias de estilo para los planes generados por IA
-  createdAt     DateTime   @default(now())
-  // Administración de la cuenta (panel /admin)
-  role          Role         @default(NUTRIOLOGO)
-  estado        EstadoCuenta @default(ACTIVE)
-  tier          PlanTier     @default(FREE)
-  tierUpdatedAt DateTime?
-  suspendedAt   DateTime?
-  notasAdmin    String?
-  // Suscripción — se llenan desde webhooks de Stripe cuando se integren cobros
-  stripeCustomerId     String? @unique
+  id                   String           @id @default(cuid())
+  name                 String?
+  email                String           @unique
+  emailVerified        DateTime?
+  image                String?
+  passwordHash         String? // email + password login (Credentials provider)
+  // The nutritionist's own fields
+  licenseNumber        String? // professional license ("cédula"), shown on the PDF
+  logoUrl              String?
+  promptStyle          String? // style preferences for AI-generated plans
+  createdAt            DateTime         @default(now())
+  // Account administration (/admin panel)
+  role                 Role             @default(NUTRITIONIST)
+  status               AccountStatus    @default(ACTIVE)
+  tier                 PlanTier         @default(FREE)
+  tierUpdatedAt        DateTime?
+  suspendedAt          DateTime?
+  adminNotes           String?
+  // Subscription: filled from Stripe webhooks once billing is integrated
+  stripeCustomerId     String?          @unique
   stripeSubscriptionId String?
   subscriptionStatus   String?
-  accounts      Account[]
-  sessions      Session[]
-  pacientes     Paciente[]
-  consultas     Consulta[]
-  solicitudes   Solicitud[]
-  citas         Cita[]
+  accounts             Account[]
+  sessions             Session[]
+  patients             Patient[]
+  consultations        Consultation[]
+  featureRequests      FeatureRequest[]
+  appointments         Appointment[]
 }
 
 enum Role {
   ADMIN
-  NUTRIOLOGO
+  NUTRITIONIST
 }
 
-enum EstadoCuenta {
+enum AccountStatus {
   ACTIVE
   SUSPENDED
-  PENDING // reservado para aprobar registros manualmente en beta
+  PENDING // reserved for manually approving sign-ups during beta
 }
 
 enum PlanTier {
   FREE
   PRO
-  ILIMITADO
+  UNLIMITED
 }
 
 model Account {
@@ -91,123 +91,123 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// ── Dominio ──────────────────────────────────────────────────────────────
+// ── Domain ───────────────────────────────────────────────────────────────
 
-model Paciente {
-  id               String     @id @default(cuid())
-  // Aislamiento multi-tenant: todo paciente pertenece a un nutriólogo
-  userId           String
-  user             User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  nombre           String
-  fechaNacimiento  DateTime
-  genero           Genero
-  email            String?
-  telefono         String?
-  notas            String?
-  consentimientoAt DateTime? // consentimiento de tratamiento de datos de salud
-  createdAt        DateTime   @default(now())
-  consultas        Consulta[]
-  citas            Cita[]
-
-  @@index([userId])
-}
-
-enum Genero {
-  FEMENINO
-  MASCULINO
-  OTRO
-}
-
-model Cita {
-  id          String     @id @default(cuid())
-  pacienteId  String
-  paciente    Paciente   @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
-  // Aislamiento multi-tenant: toda cita pertenece a un nutriólogo
-  userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  // Instante en UTC. Se captura y se muestra en America/Mexico_City (lib/fechas.ts):
-  // el servidor de producción corre en UTC y no se puede confiar en su zona local.
-  inicioAt    DateTime
-  duracionMin Int        @default(60)
-  estado      EstadoCita @default(PROGRAMADA)
-  notas       String? // logísticas, no clínicas: motivo, si viene acompañado, etc.
-  createdAt   DateTime   @default(now())
-
-  @@index([userId])
-  @@index([pacienteId])
-  @@index([userId, inicioAt]) // la rejilla mensual filtra por rango de fechas
-}
-
-enum EstadoCita {
-  PROGRAMADA
-  CONFIRMADA
-  CANCELADA
-  COMPLETADA
-}
-
-model Consulta {
-  id            String    @id @default(cuid())
-  pacienteId    String
-  paciente      Paciente  @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+model Patient {
+  id            String         @id @default(cuid())
+  // Multi-tenant isolation: every patient belongs to a nutritionist
   userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Antropometría
-  peso          Float // kg
-  altura        Float // cm
-  cintura       Float?
-  cadera        Float?
-  brazo         Float?
-  grasaCorporal Float? // %
-
-  objetivos     String
-  restricciones String // alergias, condiciones médicas, preferencias
-
-  // Audio (Fase 2)
-  audioUrl      String?
-  transcripcion String?
-
-  // IA
-  planGenerado  Json? // salida cruda del modelo (auditoría)
-  planFinal     Json? // versión editada por el nutriólogo
-  promptVersion String? // qué versión de prompt generó el plan
-  modeloIA      String? // modelo que generó el plan (auditoría)
-  inputTokens   Int?
-  outputTokens  Int?
-  generaciones  Int     @default(0) // llamadas a la IA de esta consulta; tope en lib/limits.ts
-
-  aprobadoAt    DateTime? // el PDF solo se exporta si esto no es null
-  createdAt     DateTime  @default(now())
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name          String
+  birthDate     DateTime
+  gender        Gender
+  email         String?
+  phone         String?
+  notes         String?
+  consentAt     DateTime? // consent to process health data
+  createdAt     DateTime       @default(now())
+  consultations Consultation[]
+  appointments  Appointment[]
 
   @@index([userId])
-  @@index([pacienteId])
 }
 
-model Solicitud {
-  id             String          @id @default(cuid())
-  // Multi-tenant: cada solicitud pertenece al nutriólogo que la envió
-  userId         String
-  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  titulo         String
-  descripcion    String
-  estado         EstadoSolicitud @default(NUEVA)
-  respuestaAdmin String? // visible para el nutriólogo junto al estado
-  respondidoAt   DateTime?
-  // Análisis de viabilidad con IA (scripts/analizar-solicitudes.mjs)
-  analisisIA     String?
-  veredictoIA    String? // "VIABLE" | "NO_VIABLE" | "REQUIERE_DISENO"
-  respuestaIA    String? // borrador de respuesta al nutriólogo; solo se publica si el admin lo guarda
-  analizadoAt    DateTime?
-  createdAt      DateTime        @default(now())
+enum Gender {
+  FEMALE
+  MALE
+  OTHER
+}
+
+model Appointment {
+  id          String            @id @default(cuid())
+  patientId   String
+  patient     Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  // Multi-tenant isolation: every appointment belongs to a nutritionist
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // UTC instant. Captured and displayed in America/Mexico_City (lib/dates.ts):
+  // the production server runs in UTC and its local zone can't be trusted.
+  startsAt    DateTime
+  durationMin Int               @default(60)
+  status      AppointmentStatus @default(SCHEDULED)
+  notes       String? // logistics, not clinical: reason, whether someone comes along, etc.
+  createdAt   DateTime          @default(now())
 
   @@index([userId])
-  @@index([estado])
+  @@index([patientId])
+  @@index([userId, startsAt]) // the monthly grid filters by date range
 }
 
-enum EstadoSolicitud {
-  NUEVA
-  EN_REVISION
-  APROBADA
-  RECHAZADA
-  IMPLEMENTADA
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Consultation {
+  id        String  @id @default(cuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Anthropometrics
+  weight     Float // kg
+  height     Float // cm
+  waist      Float?
+  hip        Float?
+  arm        Float?
+  bodyFatPct Float? // %
+
+  goals        String
+  restrictions String // allergies, medical conditions, preferences
+
+  // Audio (Phase 2)
+  audioUrl   String?
+  transcript String?
+
+  // AI
+  generatedPlan   Json? // raw model output (audit)
+  finalPlan       Json? // version edited by the nutritionist
+  promptVersion   String? // which prompt version generated the plan
+  aiModel         String? // model that generated the plan (audit)
+  inputTokens     Int?
+  outputTokens    Int?
+  generationCount Int     @default(0) // AI calls for this consultation; capped in lib/limits.ts
+
+  approvedAt DateTime? // the PDF is only exported when this is not null
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([patientId])
+}
+
+model FeatureRequest {
+  id              String               @id @default(cuid())
+  // Multi-tenant: each request belongs to the nutritionist who sent it
+  userId          String
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  status          FeatureRequestStatus @default(NEW)
+  adminResponse   String? // shown to the nutritionist next to the status
+  respondedAt     DateTime?
+  // AI feasibility analysis (scripts/analyze-feature-requests.mjs)
+  aiAnalysis      String?
+  aiVerdict       String? // "VIABLE" | "NOT_VIABLE" | "NEEDS_DESIGN"
+  aiDraftResponse String? // draft reply to the nutritionist; only published if the admin saves it
+  analyzedAt      DateTime?
+  createdAt       DateTime             @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+enum FeatureRequestStatus {
+  NEW
+  IN_REVIEW
+  APPROVED
+  REJECTED
+  IMPLEMENTED
 }

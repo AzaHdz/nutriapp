@@ -6,15 +6,15 @@ const fills = {
   info: "bg-info",
 } as const;
 
-/** Barra de macronutriente: etiqueta + gramos·% (mono) + barra de progreso. */
+/** Macronutrient bar: label + grams·% (mono) + progress bar. */
 export function MacroBar({
   label,
-  gramos,
+  grams,
   pct,
   tone = "primary",
 }: {
   label: string;
-  gramos: number;
+  grams: number;
   pct: number;
   tone?: keyof typeof fills;
 }) {
@@ -24,7 +24,7 @@ export function MacroBar({
       <div className="flex items-baseline justify-between">
         <span className="text-sm text-text-2">{label}</span>
         <span className="font-mono text-xs tabular-nums text-text-3">
-          {Math.round(gramos)} g · {Math.round(pct)}%
+          {Math.round(grams)} g · {Math.round(pct)}%
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-pill bg-surface-3">

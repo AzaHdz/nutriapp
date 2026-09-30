@@ -1,15 +1,15 @@
-/** Iniciales para avatares: primeras letras de las dos primeras palabras. */
-export function initials(nombre?: string | null): string {
-  if (!nombre) return "?";
-  const partes = nombre.trim().split(/\s+/).filter(Boolean);
-  if (partes.length === 0) return "?";
-  const primera = partes[0][0] ?? "";
-  const segunda = partes.length > 1 ? partes[partes.length - 1][0] ?? "" : "";
-  return (primera + segunda).toUpperCase();
+/** Avatar initials: first letter of the first and last words. */
+export function initials(name?: string | null): string {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  const first = parts[0][0] ?? "";
+  const last = parts.length > 1 ? parts[parts.length - 1][0] ?? "" : "";
+  return (first + last).toUpperCase();
 }
 
-/** Fecha corta es-MX: "02 jul 2026". */
-export function fechaCorta(d: Date): string {
+/** Short es-MX date: "02 jul 2026". */
+export function formatShortDate(d: Date): string {
   return d.toLocaleDateString("es-MX", {
     day: "2-digit",
     month: "short",
@@ -17,8 +17,8 @@ export function fechaCorta(d: Date): string {
   });
 }
 
-/** Fecha larga es-MX: "viernes 17 de julio de 2026". */
-export function fechaLarga(d: Date): string {
+/** Long es-MX date: "viernes 17 de julio de 2026". */
+export function formatLongDate(d: Date): string {
   return d.toLocaleDateString("es-MX", {
     weekday: "long",
     day: "numeric",
@@ -26,3 +26,10 @@ export function fechaLarga(d: Date): string {
     year: "numeric",
   });
 }
+
+/** Spanish labels for the Gender enum, lowercase to fit inside a sentence. */
+export const GENDER_LABELS = {
+  FEMALE: "femenino",
+  MALE: "masculino",
+  OTHER: "otro",
+} as const;

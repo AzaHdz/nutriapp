@@ -1,5 +1,5 @@
-/** Panel de marca izquierdo de las pantallas de acceso.
- *  bg-brand-panel es invariante entre claro/oscuro (ciruela profundo). */
+/** Left brand panel on the auth screens.
+ *  bg-brand-panel is the same in light and dark mode (deep plum). */
 export function BrandPanel() {
   const bullets = [
     "Expediente clínico completo por paciente",
@@ -35,7 +35,7 @@ export function BrandPanel() {
   );
 }
 
-/** Sello de confianza al pie del formulario. */
+/** Trust seal below the form. */
 export function TrustSeal() {
   return (
     <div className="mt-6 flex items-center justify-center gap-2 text-[11.5px] text-text-3">

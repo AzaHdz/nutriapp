@@ -8,8 +8,8 @@ const rangeColor: Record<Range, string> = {
   critical: "text-range-critical",
 };
 
-/** Cifra clínica (peso, %grasa, cintura…) con etiqueta.
- *  `range` colorea el valor según esté dentro/fuera de rango. */
+/** Labeled clinical figure (weight, body fat %, waist…).
+ *  `range` colors the value by whether it is in or out of range. */
 export function Stat({
   label,
   value,

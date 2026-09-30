@@ -1,33 +1,33 @@
 import Link from "next/link";
-import type { EstadoCita } from "@prisma/client";
+import type { AppointmentStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { auth, requireUser } from "@/lib/auth";
-import { cambiarEstadoCita } from "@/app/actions/citas";
+import { setAppointmentStatus } from "@/app/actions/appointments";
 import { Card } from "@/components/ui/Card";
 import { Badge, type Tone } from "@/components/ui/Badge";
 import { Button, buttonVariants } from "@/components/ui/Button";
-import { RecordatorioWhatsApp } from "@/components/RecordatorioWhatsApp";
+import { WhatsAppReminder } from "@/components/WhatsAppReminder";
 import {
-  DIAS_SEMANA,
-  claveDia,
-  claveMes,
-  fechaLargaEnZona,
-  finDelDia,
-  horaEnZona,
-  horaFinEnZona,
-  hoyClave,
-  inicioDelDia,
-  mesVecino,
-  nombreDelMes,
-  parsearMes,
-  rejillaDelMes,
-} from "@/lib/fechas";
+  WEEKDAYS,
+  dayKey,
+  monthKey,
+  longDateInZone,
+  endOfDay,
+  timeInZone,
+  endTimeInZone,
+  todayKey,
+  startOfDay,
+  adjacentMonth,
+  monthName,
+  parseMonth,
+  monthGrid,
+} from "@/lib/dates";
 
-const ESTADO: Record<EstadoCita, { label: string; tone: Tone }> = {
-  PROGRAMADA: { label: "Programada", tone: "neutral" },
-  CONFIRMADA: { label: "Confirmada", tone: "success" },
-  CANCELADA: { label: "Cancelada", tone: "danger" },
-  COMPLETADA: { label: "Completada", tone: "info" },
+const STATUS_BADGE: Record<AppointmentStatus, { label: string; tone: Tone }> = {
+  SCHEDULED: { label: "Programada", tone: "neutral" },
+  CONFIRMED: { label: "Confirmada", tone: "success" },
+  CANCELLED: { label: "Cancelada", tone: "danger" },
+  COMPLETED: { label: "Completada", tone: "info" },
 };
 
 export default async function AgendaPage({
@@ -36,90 +36,91 @@ export default async function AgendaPage({
   searchParams: Promise<{ mes?: string; dia?: string }>;
 }) {
   const { userId } = await requireUser();
-  const sesion = await auth();
+  const session = await auth();
+  // `mes` and `dia` are URL query params, which stay in Spanish
   const sp = await searchParams;
 
-  const { anio, mes } = parsearMes(sp.mes);
-  const celdas = rejillaDelMes(anio, mes);
-  const hoy = hoyClave();
-  const diaSel = sp.dia && /^\d{4}-\d{2}-\d{2}$/.test(sp.dia) ? sp.dia : null;
+  const { year, month } = parseMonth(sp.mes);
+  const cells = monthGrid(year, month);
+  const today = todayKey();
+  const selectedDay = sp.dia && /^\d{4}-\d{2}-\d{2}$/.test(sp.dia) ? sp.dia : null;
 
-  // Un solo query para toda la rejilla, incluidos los días de relleno de los
-  // meses vecinos que sí se dibujan.
-  const citas = await prisma.cita.findMany({
+  // A single query for the whole grid, including the padding days from the
+  // neighboring months that do get drawn.
+  const appointments = await prisma.appointment.findMany({
     where: {
       userId,
-      inicioAt: { gte: inicioDelDia(celdas[0].clave), lt: finDelDia(celdas[41].clave) },
+      startsAt: { gte: startOfDay(cells[0].key), lt: endOfDay(cells[41].key) },
     },
-    include: { paciente: { select: { id: true, nombre: true, telefono: true } } },
-    orderBy: { inicioAt: "asc" },
+    include: { patient: { select: { id: true, name: true, phone: true } } },
+    orderBy: { startsAt: "asc" },
   });
 
-  // Agrupadas por su día en México, no por el día UTC del instante
-  const porDia = new Map<string, typeof citas>();
-  for (const c of citas) {
-    const k = claveDia(c.inicioAt);
-    const lista = porDia.get(k);
-    if (lista) lista.push(c);
-    else porDia.set(k, [c]);
+  // Grouped by their day in Mexico, not by the instant's UTC day
+  const byDay = new Map<string, typeof appointments>();
+  for (const a of appointments) {
+    const k = dayKey(a.startsAt);
+    const list = byDay.get(k);
+    if (list) list.push(a);
+    else byDay.set(k, [a]);
   }
 
-  const anterior = mesVecino(anio, mes, -1);
-  const siguiente = mesVecino(anio, mes, 1);
-  const delDia = diaSel ? (porDia.get(diaSel) ?? []) : [];
-  const activas = citas.filter((c) => c.estado !== "CANCELADA").length;
+  const prevMonth = adjacentMonth(year, month, -1);
+  const nextMonth = adjacentMonth(year, month, 1);
+  const dayAppointments = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
+  const activeCount = appointments.filter((a) => a.status !== "CANCELLED").length;
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Encabezado */}
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-[26px] font-bold tracking-tight text-text">
           Agenda{" "}
           <span className="font-mono text-sm font-medium text-text-3">
-            {activas} cita{activas === 1 ? "" : "s"}
+            {activeCount} cita{activeCount === 1 ? "" : "s"}
           </span>
         </h1>
         <Link
-          href={`/agenda/nueva?dia=${diaSel ?? hoy}`}
+          href={`/agenda/nueva?dia=${selectedDay ?? today}`}
           className={buttonVariants({ size: "sm" })}
         >
           + Nueva cita
         </Link>
       </div>
 
-      {/* Navegación de mes */}
+      {/* Month navigation */}
       <div className="flex items-center gap-2">
         <Link
-          href={`/agenda?mes=${claveMes(anterior.anio, anterior.mes)}`}
+          href={`/agenda?mes=${monthKey(prevMonth.year, prevMonth.month)}`}
           aria-label="Mes anterior"
           className={buttonVariants({ variant: "secondary", size: "sm", className: "px-3" })}
         >
           ‹
         </Link>
-        {/* first-letter, no capitalize: "agosto de 2026" debe quedar "Agosto de 2026",
-            no "Agosto De 2026" */}
+        {/* first-letter, not capitalize: "agosto de 2026" must become "Agosto de 2026",
+            not "Agosto De 2026" */}
         <span className="min-w-[9.5rem] text-center font-display text-[15px] font-bold text-text first-letter:uppercase">
-          {nombreDelMes(anio, mes)}
+          {monthName(year, month)}
         </span>
         <Link
-          href={`/agenda?mes=${claveMes(siguiente.anio, siguiente.mes)}`}
+          href={`/agenda?mes=${monthKey(nextMonth.year, nextMonth.month)}`}
           aria-label="Mes siguiente"
           className={buttonVariants({ variant: "secondary", size: "sm", className: "px-3" })}
         >
           ›
         </Link>
         <Link
-          href={`/agenda?dia=${hoy}`}
+          href={`/agenda?dia=${today}`}
           className={buttonVariants({ variant: "ghost", size: "sm" })}
         >
           Hoy
         </Link>
       </div>
 
-      {/* Rejilla */}
+      {/* Grid */}
       <Card className="overflow-hidden">
         <div className="grid grid-cols-7 border-b border-border bg-surface-2">
-          {DIAS_SEMANA.map((d) => (
+          {WEEKDAYS.map((d) => (
             <div
               key={d}
               className="px-2 py-2 text-center text-[11px] font-semibold uppercase tracking-wide text-text-3"
@@ -130,51 +131,51 @@ export default async function AgendaPage({
         </div>
 
         <div className="grid grid-cols-7">
-          {celdas.map((celda) => {
-            const delCelda = porDia.get(celda.clave) ?? [];
-            const esHoy = celda.clave === hoy;
-            const seleccionado = celda.clave === diaSel;
+          {cells.map((cell) => {
+            const cellAppointments = byDay.get(cell.key) ?? [];
+            const isToday = cell.key === today;
+            const isSelected = cell.key === selectedDay;
 
             return (
               <Link
-                key={celda.clave}
-                href={`/agenda?mes=${claveMes(anio, mes)}&dia=${celda.clave}`}
-                aria-current={seleccionado ? "date" : undefined}
+                key={cell.key}
+                href={`/agenda?mes=${monthKey(year, month)}&dia=${cell.key}`}
+                aria-current={isSelected ? "date" : undefined}
                 className={`min-h-[96px] border-b border-r border-border p-1.5 transition-colors last:border-r-0 ${
-                  seleccionado ? "bg-primary-soft" : celda.delMes ? "hover:bg-surface-3" : "bg-surface-2"
+                  isSelected ? "bg-primary-soft" : cell.inMonth ? "hover:bg-surface-3" : "bg-surface-2"
                 }`}
               >
                 <span
                   className={`inline-flex size-6 items-center justify-center rounded-pill font-mono text-[11.5px] tabular-nums ${
-                    esHoy
+                    isToday
                       ? "bg-primary font-bold text-on-primary"
-                      : celda.delMes
+                      : cell.inMonth
                         ? "text-text-2"
                         : "text-text-3"
                   }`}
                 >
-                  {celda.dia}
+                  {cell.day}
                 </span>
 
                 <div className="mt-1 flex flex-col gap-0.5">
-                  {delCelda.slice(0, 3).map((c) => (
+                  {cellAppointments.slice(0, 3).map((c) => (
                     <span
                       key={c.id}
                       className={`truncate rounded-chip px-1 py-px text-[10.5px] ${
-                        c.estado === "CANCELADA"
+                        c.status === "CANCELLED"
                           ? "text-text-3 line-through"
                           : "bg-surface-3 text-text-2"
                       }`}
                     >
-                      {/* En móvil la celda mide ~48px: el nombre no cabe y lo
-                          recortaría todo. Mejor la hora sola, que sí se lee. */}
-                      <span className="font-mono tabular-nums">{horaEnZona(c.inicioAt)}</span>
-                      <span className="hidden sm:inline"> {c.paciente.nombre.split(" ")[0]}</span>
+                      {/* On mobile the cell is ~48px wide: the name doesn't fit and
+                          would crowd everything out. The time alone reads fine. */}
+                      <span className="font-mono tabular-nums">{timeInZone(c.startsAt)}</span>
+                      <span className="hidden sm:inline"> {c.patient.name.split(" ")[0]}</span>
                     </span>
                   ))}
-                  {delCelda.length > 3 && (
+                  {cellAppointments.length > 3 && (
                     <span className="px-1 text-[10.5px] font-semibold text-primary">
-                      +{delCelda.length - 3} más
+                      +{cellAppointments.length - 3} más
                     </span>
                   )}
                 </div>
@@ -184,88 +185,88 @@ export default async function AgendaPage({
         </div>
       </Card>
 
-      {citas.length === 0 && (
+      {appointments.length === 0 && (
         <p className="text-center text-sm text-text-3">
-          Sin citas en {nombreDelMes(anio, mes)}. Usa “+ Nueva cita” para agendar la primera.
+          Sin citas en {monthName(year, month)}. Usa “+ Nueva cita” para agendar la primera.
         </p>
       )}
 
-      {/* Detalle del día seleccionado */}
-      {diaSel && (
+      {/* Selected day detail */}
+      {selectedDay && (
         <Card className="overflow-hidden">
           <div className="flex items-baseline justify-between border-b border-border bg-surface-2 px-5 py-3">
             <span className="font-display text-[15px] font-bold text-text first-letter:uppercase">
-              {fechaLargaEnZona(inicioDelDia(diaSel))}
+              {longDateInZone(startOfDay(selectedDay))}
             </span>
             <span className="font-mono text-xs text-text-3">
-              {delDia.length} cita{delDia.length === 1 ? "" : "s"}
+              {dayAppointments.length} cita{dayAppointments.length === 1 ? "" : "s"}
             </span>
           </div>
 
-          {delDia.length === 0 ? (
+          {dayAppointments.length === 0 ? (
             <div className="px-5 py-8 text-center">
               <p className="text-sm text-text-3">No hay citas este día.</p>
               <Link
-                href={`/agenda/nueva?dia=${diaSel}`}
+                href={`/agenda/nueva?dia=${selectedDay}`}
                 className={buttonVariants({ variant: "secondary", size: "sm", className: "mt-3" })}
               >
                 Agendar una
               </Link>
             </div>
           ) : (
-            delDia.map((c) => (
+            dayAppointments.map((c) => (
               <div key={c.id} className="border-b border-border px-5 py-4 last:border-0">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
                   <span className="font-mono text-[13px] font-semibold tabular-nums text-text">
-                    {horaEnZona(c.inicioAt)} – {horaFinEnZona(c.inicioAt, c.duracionMin)}
+                    {timeInZone(c.startsAt)} – {endTimeInZone(c.startsAt, c.durationMin)}
                   </span>
                   <Link
-                    href={`/pacientes/${c.paciente.id}`}
+                    href={`/pacientes/${c.patient.id}`}
                     className="text-sm font-semibold text-text hover:underline"
                   >
-                    {c.paciente.nombre}
+                    {c.patient.name}
                   </Link>
-                  <Badge tone={ESTADO[c.estado].tone}>{ESTADO[c.estado].label}</Badge>
+                  <Badge tone={STATUS_BADGE[c.status].tone}>{STATUS_BADGE[c.status].label}</Badge>
                 </div>
 
-                {c.notas && <p className="mt-1.5 text-[12.5px] text-text-2">{c.notas}</p>}
+                {c.notes && <p className="mt-1.5 text-[12.5px] text-text-2">{c.notes}</p>}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  {c.estado !== "CANCELADA" && (
-                    <RecordatorioWhatsApp
-                      paciente={c.paciente.nombre}
-                      telefono={c.paciente.telefono}
-                      nutriologo={sesion?.user?.name}
-                      inicioAt={c.inicioAt}
+                  {c.status !== "CANCELLED" && (
+                    <WhatsAppReminder
+                      patientName={c.patient.name}
+                      phone={c.patient.phone}
+                      nutritionistName={session?.user?.name}
+                      startsAt={c.startsAt}
                     />
                   )}
 
-                  {c.estado === "PROGRAMADA" && (
-                    <AccionEstado citaId={c.id} estado="CONFIRMADA" label="Confirmar" />
+                  {c.status === "SCHEDULED" && (
+                    <StatusAction appointmentId={c.id} status="CONFIRMED" label="Confirmar" />
                   )}
-                  {(c.estado === "PROGRAMADA" || c.estado === "CONFIRMADA") && (
+                  {(c.status === "SCHEDULED" || c.status === "CONFIRMED") && (
                     <>
-                      <AccionEstado citaId={c.id} estado="COMPLETADA" label="Completar" />
+                      <StatusAction appointmentId={c.id} status="COMPLETED" label="Completar" />
                       <Link
                         href={`/agenda/${c.id}/editar`}
                         className={buttonVariants({ variant: "ghost", size: "sm" })}
                       >
                         Reprogramar
                       </Link>
-                      <AccionEstado
-                        citaId={c.id}
-                        estado="CANCELADA"
+                      <StatusAction
+                        appointmentId={c.id}
+                        status="CANCELLED"
                         label="Cancelar"
                         variant="ghost"
                       />
                     </>
                   )}
-                  {c.estado === "CANCELADA" && (
-                    <AccionEstado citaId={c.id} estado="PROGRAMADA" label="Reactivar" />
+                  {c.status === "CANCELLED" && (
+                    <StatusAction appointmentId={c.id} status="SCHEDULED" label="Reactivar" />
                   )}
-                  {c.estado === "COMPLETADA" && (
+                  {c.status === "COMPLETED" && (
                     <Link
-                      href={`/consultas/nueva?paciente=${c.paciente.id}`}
+                      href={`/consultas/nueva?paciente=${c.patient.id}`}
                       className={buttonVariants({ size: "sm" })}
                     >
                       + Nueva consulta
@@ -281,21 +282,21 @@ export default async function AgendaPage({
   );
 }
 
-function AccionEstado({
-  citaId,
-  estado,
+function StatusAction({
+  appointmentId,
+  status,
   label,
   variant = "secondary",
 }: {
-  citaId: string;
-  estado: EstadoCita;
+  appointmentId: string;
+  status: AppointmentStatus;
   label: string;
   variant?: "secondary" | "ghost";
 }) {
   return (
-    <form action={cambiarEstadoCita}>
-      <input type="hidden" name="citaId" value={citaId} />
-      <input type="hidden" name="estado" value={estado} />
+    <form action={setAppointmentStatus}>
+      <input type="hidden" name="appointmentId" value={appointmentId} />
+      <input type="hidden" name="status" value={status} />
       <Button type="submit" variant={variant} size="sm">
         {label}
       </Button>

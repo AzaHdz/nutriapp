@@ -19,7 +19,7 @@ const sizes: Record<Size, string> = {
   md: "h-10 px-4 text-sm",
 };
 
-/** Clases del botón, reutilizables en <Link>/<a> además del <button>. */
+/** Button classes, reusable on <Link>/<a> as well as <button>. */
 export function buttonVariants({
   variant = "primary",
   size = "md",

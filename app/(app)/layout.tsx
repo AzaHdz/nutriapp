@@ -5,35 +5,35 @@ import { prisma } from "@/lib/prisma";
 import { NavLink } from "@/components/nav-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar } from "@/components/ui/Avatar";
-import { finDelDia, hoyClave, inicioDelDia } from "@/lib/fechas";
+import { endOfDay, todayKey, startOfDay } from "@/lib/dates";
 
 export default async function AppLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  // requireUser redirige a /login si no hay sesión o la cuenta está suspendida
+  // requireUser redirects to /login when there is no session or the account is suspended
   const { userId, role } = await requireUser();
   const session = await auth();
 
-  // Badge de "Planes": consultas con plan generado pendiente de aprobar.
-  const planesPendientes = await prisma.consulta.count({
-    where: { userId, planFinal: { not: Prisma.DbNull }, aprobadoAt: null },
+  // "Planes" badge: consultations with a generated plan awaiting approval.
+  const pendingPlans = await prisma.consultation.count({
+    where: { userId, finalPlan: { not: Prisma.DbNull }, approvedAt: null },
   });
 
-  // Badge de "Agenda": citas de hoy que siguen en pie. El rango se calcula en
-  // horario de México, no en la zona del servidor (en Vercel es UTC).
-  const citasHoy = await prisma.cita.count({
+  // "Agenda" badge: today's appointments that are still on. The range is computed
+  // in Mexico time, not the server's zone (UTC on Vercel).
+  const todaysAppointments = await prisma.appointment.count({
     where: {
       userId,
-      estado: { in: ["PROGRAMADA", "CONFIRMADA"] },
-      inicioAt: { gte: inicioDelDia(hoyClave()), lt: finDelDia(hoyClave()) },
+      status: { in: ["SCHEDULED", "CONFIRMED"] },
+      startsAt: { gte: startOfDay(todayKey()), lt: endOfDay(todayKey()) },
     },
   });
 
-  // Badge de "Solicitudes" (solo admin): sugerencias sin revisar.
-  const solicitudesNuevas =
-    role === "ADMIN" ? await prisma.solicitud.count({ where: { estado: "NUEVA" } }) : 0;
+  // "Solicitudes" badge (admin only): unreviewed suggestions.
+  const newRequests =
+    role === "ADMIN" ? await prisma.featureRequest.count({ where: { status: "NEW" } }) : 0;
 
-  const nombre = session?.user?.name ?? session?.user?.email ?? "Nutriólogo";
+  const displayName = session?.user?.name ?? session?.user?.email ?? "Nutriólogo";
 
   return (
     <div className="flex min-h-screen">
@@ -50,7 +50,7 @@ export default async function AppLayout({
           <NavLink href="/dashboard" icon={<HomeIcon />}>
             Inicio
           </NavLink>
-          <NavLink href="/agenda" icon={<CalendarIcon />} badge={citasHoy > 0 ? citasHoy : undefined}>
+          <NavLink href="/agenda" icon={<CalendarIcon />} badge={todaysAppointments > 0 ? todaysAppointments : undefined}>
             Agenda
           </NavLink>
           <NavLink href="/pacientes" icon={<UsersIcon />}>
@@ -62,7 +62,7 @@ export default async function AppLayout({
           <NavLink
             href="/planes"
             icon={<PlanIcon />}
-            badge={planesPendientes > 0 ? planesPendientes : undefined}
+            badge={pendingPlans > 0 ? pendingPlans : undefined}
           >
             Planes
           </NavLink>
@@ -80,7 +80,7 @@ export default async function AppLayout({
               <NavLink
                 href="/admin/solicitudes"
                 icon={<InboxIcon />}
-                badge={solicitudesNuevas > 0 ? solicitudesNuevas : undefined}
+                badge={newRequests > 0 ? newRequests : undefined}
               >
                 Solicitudes
               </NavLink>
@@ -90,9 +90,9 @@ export default async function AppLayout({
 
         <div className="mt-auto flex flex-col gap-2 border-t border-border pt-3">
           <div className="flex items-center gap-2.5 px-1 py-1.5">
-            <Avatar nombre={nombre} size="md" />
+            <Avatar name={displayName} size="md" />
             <div className="min-w-0 flex-1">
-              <div className="truncate text-[12.5px] font-semibold text-text">{nombre}</div>
+              <div className="truncate text-[12.5px] font-semibold text-text">{displayName}</div>
               <div className="text-[11px] text-text-3">Nutrióloga clínica</div>
             </div>
             <ThemeToggle />
@@ -110,7 +110,7 @@ export default async function AppLayout({
         </div>
       </aside>
 
-      {/* Barra superior móvil */}
+      {/* Mobile top bar */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-surface-2 px-4 py-3 md:hidden print:hidden">
           <Link href="/dashboard" className="font-display text-lg font-bold text-text">

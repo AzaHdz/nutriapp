@@ -1,28 +1,28 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { crearSolicitud } from "@/app/actions/solicitudes";
+import { createFeatureRequest } from "@/app/actions/featureRequests";
 import { Card } from "@/components/ui/Card";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
-export function SolicitudForm() {
+export function FeatureRequestForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();
-  const [estado, setEstado] = useState<"idle" | "ok" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "ok" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
 
   function onSubmit(formData: FormData) {
-    setEstado("idle");
+    setStatus("idle");
     setError(null);
     startTransition(async () => {
-      const r = await crearSolicitud(formData);
+      const r = await createFeatureRequest(formData);
       if (r.ok) {
-        setEstado("ok");
+        setStatus("ok");
         formRef.current?.reset();
       } else {
-        setEstado("error");
+        setStatus("error");
         setError(r.error ?? "No se pudo enviar.");
       }
     });
@@ -31,10 +31,10 @@ export function SolicitudForm() {
   return (
     <form ref={formRef} action={onSubmit}>
       <Card className="flex flex-col gap-4 p-6">
-        <Field label="¿Qué necesitas?" htmlFor="titulo">
+        <Field label="¿Qué necesitas?" htmlFor="title">
           <Input
-            id="titulo"
-            name="titulo"
+            id="title"
+            name="title"
             required
             maxLength={120}
             placeholder="Ej. Recordatorios de consulta por WhatsApp"
@@ -43,12 +43,12 @@ export function SolicitudForm() {
 
         <Field
           label="Cuéntanos más"
-          htmlFor="descripcion"
+          htmlFor="description"
           hint="¿Qué problema te resolvería? ¿Cómo te imaginas que funcione?"
         >
           <Textarea
-            id="descripcion"
-            name="descripcion"
+            id="description"
+            name="description"
             required
             rows={4}
             maxLength={2000}
@@ -60,10 +60,10 @@ export function SolicitudForm() {
           <Button type="submit" disabled={pending}>
             {pending ? "Enviando…" : "Enviar sugerencia"}
           </Button>
-          {estado === "ok" && (
+          {status === "ok" && (
             <span className="text-sm text-success">Enviada ✓ — la revisaremos pronto</span>
           )}
-          {estado === "error" && <span className="text-sm text-danger">{error}</span>}
+          {status === "error" && <span className="text-sm text-danger">{error}</span>}
         </div>
       </Card>
     </form>

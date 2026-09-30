@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { restablecerPassword } from "@/app/actions/password";
+import { resetPassword } from "@/app/actions/password";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 
-export default async function RestablecerPage({
+export default async function ResetPasswordPage({
   searchParams,
 }: {
   searchParams: Promise<{ email?: string; token?: string; error?: string }>;
@@ -32,7 +32,7 @@ export default async function RestablecerPage({
             </p>
           )}
 
-          <form action={restablecerPassword} className="flex flex-col gap-4">
+          <form action={resetPassword} className="flex flex-col gap-4">
             <input type="hidden" name="email" value={email} />
             <input type="hidden" name="token" value={token} />
             <label className="flex flex-col gap-1.5">
@@ -47,7 +47,7 @@ export default async function RestablecerPage({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-text">Confírmala</span>
-              <Input type="password" name="confirmar" required minLength={8} placeholder="••••••••••" />
+              <Input type="password" name="confirmPassword" required minLength={8} placeholder="••••••••••" />
             </label>
             <Button type="submit">Guardar contraseña</Button>
           </form>

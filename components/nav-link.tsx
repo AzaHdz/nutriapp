@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "./ui/cn";
 
-/** Enlace de navegación del sidebar con estado activo (por prefijo de ruta). */
+/** Sidebar navigation link with an active state (matched by route prefix). */
 export function NavLink({
   href,
   icon,

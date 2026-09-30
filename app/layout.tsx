@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     "Expedientes, consultas y planes alimenticios con IA para nutriólogos",
 };
 
-// Se ejecuta antes del primer paint para evitar el parpadeo claro→oscuro:
-// respeta la preferencia guardada y, si no hay, la del sistema operativo.
+// Runs before the first paint to avoid a light→dark flash: honors the saved
+// preference and, if there is none, the operating system's.
 const noFlashScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
 export default function RootLayout({

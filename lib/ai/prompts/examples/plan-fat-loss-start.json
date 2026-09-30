@@ -1,50 +1,50 @@
 {
-  "kcalObjetivoDiarias": 2500,
+  "dailyKcalTarget": 2500,
   "macros": {
-    "proteinas_g": 187,
-    "carbohidratos_g": 281,
-    "grasas_g": 69
+    "protein_g": 187,
+    "carbs_g": 281,
+    "fat_g": 69
   },
-  "comidas": [
+  "meals": [
     {
-      "nombre": "Desayuno",
-      "horarioSugerido": "10:30 am",
-      "opciones": [
+      "name": "Desayuno",
+      "suggestedTime": "10:30 am",
+      "options": [
         {
-          "descripcion": "Huevo con jamón",
-          "alimentos": [
+          "description": "Huevo con jamón",
+          "foods": [
             "5 huevos revueltos",
             "5 rebanadas de jamón de pavo",
             "40 g de queso panela asada",
             "4 piezas de pan Bimbo",
             "1 taza de plátano con miel y granola"
           ],
-          "kcalAprox": 690
+          "approxKcal": 690
         },
         {
-          "descripcion": "Atún con galletas habaneras",
-          "alimentos": [
+          "description": "Atún con galletas habaneras",
+          "foods": [
             "2 latas de atún en agua",
             "3 huevos duros",
             "verdura libre",
             "2 cdas de mayonesa",
             "16 galletas habaneras"
           ],
-          "kcalAprox": 650
+          "approxKcal": 650
         },
         {
-          "descripcion": "Taquitos de asada",
-          "alimentos": [
+          "description": "Taquitos de asada",
+          "foods": [
             "4 tortillas de maíz",
             "180 g de carne asada",
             "salsa y verdura libre",
             "1 taza de camote con miel"
           ],
-          "kcalAprox": 660
+          "approxKcal": 660
         },
         {
-          "descripcion": "Sincronizadas",
-          "alimentos": [
+          "description": "Sincronizadas",
+          "foods": [
             "4 tortillas de maíz",
             "2 rebanadas de jamón de pavo",
             "2 rebanadas de queso panela",
@@ -52,70 +52,85 @@
             "verdura libre",
             "1 taza de papaya con pasas"
           ],
-          "kcalAprox": 640
+          "approxKcal": 640
         },
         {
-          "descripcion": "Sándwich de jamón de pavo",
-          "alimentos": [
+          "description": "Sándwich de jamón de pavo",
+          "foods": [
             "4 rebanadas de jamón de pavo",
             "90 g de pechuga de pollo a la plancha",
             "4 piezas de pan Bimbo",
             "aguacate",
             "lechuga, jitomate y cebolla libre"
           ],
-          "kcalAprox": 660
+          "approxKcal": 660
         }
       ]
     },
     {
-      "nombre": "Colación matutina",
-      "horarioSugerido": "1:00 pm",
-      "opciones": [
+      "name": "Colación matutina",
+      "suggestedTime": "1:00 pm",
+      "options": [
         {
-          "descripcion": "Fruta con almendras",
-          "alimentos": ["2 frutas", "10 almendras"],
-          "kcalAprox": 210
+          "description": "Fruta con almendras",
+          "foods": [
+            "2 frutas",
+            "10 almendras"
+          ],
+          "approxKcal": 210
         },
         {
-          "descripcion": "Manzana con crema de cacahuate",
-          "alimentos": ["1 manzana grande", "1 cda de crema de cacahuate"],
-          "kcalAprox": 200
+          "description": "Manzana con crema de cacahuate",
+          "foods": [
+            "1 manzana grande",
+            "1 cda de crema de cacahuate"
+          ],
+          "approxKcal": 200
         },
         {
-          "descripcion": "Jícama preparada con cacahuates",
-          "alimentos": ["2 tazas de jícama con limón y chile", "1 puño de cacahuates naturales"],
-          "kcalAprox": 200
+          "description": "Jícama preparada con cacahuates",
+          "foods": [
+            "2 tazas de jícama con limón y chile",
+            "1 puño de cacahuates naturales"
+          ],
+          "approxKcal": 200
         },
         {
-          "descripcion": "Yogurt con fruta",
-          "alimentos": ["1 taza de yogurt light", "1 fruta picada"],
-          "kcalAprox": 190
+          "description": "Yogurt con fruta",
+          "foods": [
+            "1 taza de yogurt light",
+            "1 fruta picada"
+          ],
+          "approxKcal": 190
         },
         {
-          "descripcion": "Plátano con nueces",
-          "alimentos": ["1 plátano", "8 nueces"],
-          "kcalAprox": 220
+          "description": "Plátano con nueces",
+          "foods": [
+            "1 plátano",
+            "8 nueces"
+          ],
+          "approxKcal": 220
         }
       ]
     },
     {
-      "nombre": "Comida",
-      "horarioSugerido": "3:30 pm",
-      "opciones": [
+      "name": "Comida",
+      "suggestedTime": "3:30 pm",
+      "options": [
         {
-          "descripcion": "Hamburguesas caseras",
-          "alimentos": [
+          "description": "Hamburguesas caseras",
+          "foods": [
             "360 g de carne molida especial",
             "4 panes para hamburguesa",
             "2 cucharaditas de aceite",
             "verdura libre",
             "2 cucharadas de salsa cátsup"
           ],
-          "kcalAprox": 840
+          "approxKcal": 840
         },
         {
-          "descripcion": "Ensalada de pollo",
-          "alimentos": [
+          "description": "Ensalada de pollo",
+          "foods": [
             "300 g de pollo deshebrado",
             "4 cucharaditas de mayonesa light",
             "1 taza de arroz",
@@ -123,129 +138,142 @@
             "verdura libre",
             "4 tostadas deshidratadas u horneadas"
           ],
-          "kcalAprox": 800
+          "approxKcal": 800
         },
         {
-          "descripcion": "Pollo a la plancha",
-          "alimentos": [
+          "description": "Pollo a la plancha",
+          "foods": [
             "360 g de pollo asado",
             "2 tazas de verduras al vapor",
             "1 taza de arroz rojo",
             "2 tortillas de maíz"
           ],
-          "kcalAprox": 770
+          "approxKcal": 770
         },
         {
-          "descripcion": "Pescado a la plancha",
-          "alimentos": [
+          "description": "Pescado a la plancha",
+          "foods": [
             "300 g de filete de pescado",
             "2 tazas de verduras libres",
             "1 taza de arroz blanco cocido",
             "2 tortillas o tostadas deshidratadas"
           ],
-          "kcalAprox": 760
+          "approxKcal": 760
         },
         {
-          "descripcion": "Albóndigas en caldo",
-          "alimentos": [
+          "description": "Albóndigas en caldo",
+          "foods": [
             "8 albóndigas",
             "caldo de pollo desgrasado",
             "1 taza de sopa de pasta",
             "verdura libre",
             "2 tortillas de maíz"
           ],
-          "kcalAprox": 810
+          "approxKcal": 810
         }
       ]
     },
     {
-      "nombre": "Colación vespertina",
-      "horarioSugerido": "6:00 pm",
-      "opciones": [
+      "name": "Colación vespertina",
+      "suggestedTime": "6:00 pm",
+      "options": [
         {
-          "descripcion": "Fruta fresca",
-          "alimentos": ["2 frutas"],
-          "kcalAprox": 150
+          "description": "Fruta fresca",
+          "foods": [
+            "2 frutas"
+          ],
+          "approxKcal": 150
         },
         {
-          "descripcion": "Fruta con almendras",
-          "alimentos": ["1 fruta", "5 almendras"],
-          "kcalAprox": 140
+          "description": "Fruta con almendras",
+          "foods": [
+            "1 fruta",
+            "5 almendras"
+          ],
+          "approxKcal": 140
         },
         {
-          "descripcion": "Pepino y jícama preparados",
-          "alimentos": ["2 tazas de pepino y jícama con limón y chile", "1 fruta"],
-          "kcalAprox": 140
+          "description": "Pepino y jícama preparados",
+          "foods": [
+            "2 tazas de pepino y jícama con limón y chile",
+            "1 fruta"
+          ],
+          "approxKcal": 140
         },
         {
-          "descripcion": "Gelatina con fruta",
-          "alimentos": ["1 gelatina de agua light", "1 taza de fresas o melón"],
-          "kcalAprox": 130
+          "description": "Gelatina con fruta",
+          "foods": [
+            "1 gelatina de agua light",
+            "1 taza de fresas o melón"
+          ],
+          "approxKcal": 130
         },
         {
-          "descripcion": "Uvas o papaya",
-          "alimentos": ["1 taza y media de uvas o papaya"],
-          "kcalAprox": 150
+          "description": "Uvas o papaya",
+          "foods": [
+            "1 taza y media de uvas o papaya"
+          ],
+          "approxKcal": 150
         }
       ]
     },
     {
-      "nombre": "Cena",
-      "horarioSugerido": "9:00 pm",
-      "opciones": [
+      "name": "Cena",
+      "suggestedTime": "9:00 pm",
+      "options": [
         {
-          "descripcion": "Yogurt con granola y proteína",
-          "alimentos": [
+          "description": "Yogurt con granola y proteína",
+          "foods": [
             "2 tazas de yogurt light",
             "2 frutas",
             "2 scoops de proteína en polvo",
             "8 cdas de granola"
           ],
-          "kcalAprox": 720
+          "approxKcal": 720
         },
         {
-          "descripcion": "Licuado con pan y crema de cacahuate",
-          "alimentos": [
+          "description": "Licuado con pan y crema de cacahuate",
+          "foods": [
             "2 tazas de leche descremada",
             "2 frutas",
             "2 scoops de proteína en polvo",
             "4 piezas de pan Bimbo con mantequilla de cacahuate y Splenda"
           ],
-          "kcalAprox": 750
+          "approxKcal": 750
         },
         {
-          "descripcion": "Cereal con leche",
-          "alimentos": [
+          "description": "Cereal con leche",
+          "foods": [
             "2 tazas de leche light",
             "2 scoops de proteína en polvo",
             "2 tazas de cereal de caja con 1 cucharadita de miel cada una"
           ],
-          "kcalAprox": 680
+          "approxKcal": 680
         },
         {
-          "descripcion": "Leche con pan y huevo",
-          "alimentos": [
+          "description": "Leche con pan y huevo",
+          "foods": [
             "4 piezas de pan tostado Bimbo light con mermelada light",
             "2 tazas de leche light",
             "4 huevos revueltos",
             "2 tortillas de maíz"
           ],
-          "kcalAprox": 730
+          "approxKcal": 730
         },
         {
-          "descripcion": "Yogurt con avena y nueces",
-          "alimentos": [
+          "description": "Yogurt con avena y nueces",
+          "foods": [
             "2 tazas de yogurt light",
             "2 tazas de avena con nueces",
             "2 scoops de proteína en polvo",
             "2 frutas"
           ],
-          "kcalAprox": 740
+          "approxKcal": 740
         }
       ]
     }
   ],
-  "recomendacionesGenerales": [
+  "generalRecommendations": [
     "Beber abundante agua: 2.5 litros de agua natural COMO MÍNIMO al día.",
     "Preferir los alimentos al vapor, crudos o a la plancha.",
     "Realizar actividad física por lo menos 30 minutos diarios, ejercicios aeróbicos; evita ejercicios de fuerza por el momento.",
@@ -253,6 +281,6 @@
     "Desayuna todos los días y evita las bebidas alcohólicas.",
     "Cuida tu sueño: duerme mínimo 6 horas diarias seguidas."
   ],
-  "suplementacion": [],
-  "advertencias": []
+  "supplements": [],
+  "warnings": []
 }

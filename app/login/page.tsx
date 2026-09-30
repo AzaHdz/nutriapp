@@ -15,8 +15,8 @@ export default async function LoginPage({
   if (session?.user) redirect("/dashboard");
   const { error, ok } = await searchParams;
 
-  const googleHabilitado = Boolean(process.env.AUTH_GOOGLE_ID);
-  const magicLinkHabilitado = Boolean(process.env.AUTH_RESEND_KEY);
+  const googleEnabled = Boolean(process.env.AUTH_GOOGLE_ID);
+  const magicLinkEnabled = Boolean(process.env.AUTH_RESEND_KEY);
 
   return (
     <div className="flex min-h-screen w-full">
@@ -53,7 +53,7 @@ export default async function LoginPage({
                 if (e instanceof AuthError) {
                   redirect("/login?error=CredentialsSignin");
                 }
-                throw e; // NEXT_REDIRECT del login exitoso
+                throw e; // NEXT_REDIRECT from a successful login
               }
             }}
             className="flex flex-col gap-4"
@@ -87,9 +87,9 @@ export default async function LoginPage({
             Crear cuenta gratis
           </Link>
 
-          {(googleHabilitado || magicLinkHabilitado) && (
+          {(googleEnabled || magicLinkEnabled) && (
             <div className="mt-4 flex flex-col gap-3">
-              {googleHabilitado && (
+              {googleEnabled && (
                 <form
                   action={async () => {
                     "use server";
@@ -101,7 +101,7 @@ export default async function LoginPage({
                   </Button>
                 </form>
               )}
-              {magicLinkHabilitado && (
+              {magicLinkEnabled && (
                 <form
                   action={async (formData: FormData) => {
                     "use server";

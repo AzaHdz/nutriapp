@@ -1,42 +1,42 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
-import { PlanAlimenticio } from "@/lib/ai/planSchema";
+import { MealPlan } from "@/lib/ai/planSchema";
 import {
   PROMPT_VERSION,
   SYSTEM_PROMPT_PLAN,
-  mensajesFewShot,
-  construirMensajeUsuario,
-} from "@/lib/ai/prompts/plan-v2";
-import type { DatosParaPlan, OpcionesPlan, ResultadoPlan } from "@/lib/ai/types";
+  fewShotMessages,
+  buildUserMessage,
+} from "@/lib/ai/prompts/plan-v3";
+import type { PlanInput, PlanOptions, PlanResult } from "@/lib/ai/types";
 
-const MODELO = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
+const MODEL = process.env.OPENAI_MODEL ?? "gpt-4o-mini";
 
-export async function generarPlanOpenAI(
-  datos: DatosParaPlan,
-  opciones?: OpcionesPlan
-): Promise<ResultadoPlan> {
+export async function generatePlanOpenAI(
+  input: PlanInput,
+  options?: PlanOptions
+): Promise<PlanResult> {
   const client = new OpenAI();
 
-  // Los modelos con razonamiento (gpt-5*, o*) aceptan `reasoning.effort`;
-  // "low" mantiene la aritmética correcta con mucha menos latencia.
-  const esRazonador = /^(gpt-5|o\d)/.test(MODELO);
+  // Reasoning models (gpt-5*, o*) accept `reasoning.effort`;
+  // "low" keeps the arithmetic right with much lower latency.
+  const isReasoningModel = /^(gpt-5|o\d)/.test(MODEL);
 
   const response = await client.responses.parse({
-    model: MODELO,
-    ...(esRazonador && {
+    model: MODEL,
+    ...(isReasoningModel && {
       reasoning: {
         effort: (process.env.OPENAI_REASONING_EFFORT ?? "low") as "low",
       },
     }),
     instructions: SYSTEM_PROMPT_PLAN,
     input: [
-      ...mensajesFewShot(),
+      ...fewShotMessages(),
       {
         role: "user" as const,
-        content: construirMensajeUsuario(datos, opciones?.estiloNutriologo),
+        content: buildUserMessage(input, options?.nutritionistStyle),
       },
     ],
-    text: { format: zodTextFormat(PlanAlimenticio, "plan_alimenticio") },
+    text: { format: zodTextFormat(MealPlan, "meal_plan") },
   });
 
   if (!response.output_parsed) {
@@ -46,7 +46,7 @@ export async function generarPlanOpenAI(
   return {
     plan: response.output_parsed,
     promptVersion: PROMPT_VERSION,
-    modelo: MODELO,
+    model: MODEL,
     inputTokens: response.usage?.input_tokens ?? 0,
     outputTokens: response.usage?.output_tokens ?? 0,
   };

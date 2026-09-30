@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { registrarUsuario } from "@/app/actions/registro";
+import { signUp } from "@/app/actions/signup";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 
-export default async function RegistroPage({
+export default async function SignUpPage({
   searchParams,
 }: {
   searchParams: Promise<{ error?: string }>;
@@ -32,10 +32,10 @@ export default async function RegistroPage({
             </p>
           )}
 
-          <form action={registrarUsuario} className="flex flex-col gap-4">
+          <form action={signUp} className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-text">Nombre completo</span>
-              <Input name="nombre" required placeholder="Dra. Sofía Ramírez" />
+              <Input name="name" required placeholder="Dra. Sofía Ramírez" />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-text">Correo profesional</span>

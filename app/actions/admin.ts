@@ -4,19 +4,19 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { crearTokenReset, urlReset } from "@/lib/resetTokens";
+import { createResetToken, resetUrl } from "@/lib/resetTokens";
 
-const EstadoInput = z.object({
+const StatusInput = z.object({
   userId: z.string().min(1),
-  estado: z.enum(["ACTIVE", "SUSPENDED"]),
+  status: z.enum(["ACTIVE", "SUSPENDED"]),
 });
 
-export async function cambiarEstadoCuenta(formData: FormData) {
+export async function setAccountStatus(formData: FormData) {
   const admin = await requireAdmin();
 
-  const parsed = EstadoInput.safeParse(Object.fromEntries(formData));
+  const parsed = StatusInput.safeParse(Object.fromEntries(formData));
   if (!parsed.success) throw new Error("Datos inválidos");
-  const { userId, estado } = parsed.data;
+  const { userId, status } = parsed.data;
 
   if (userId === admin.userId) {
     throw new Error("No puedes suspender tu propia cuenta de administrador.");
@@ -25,8 +25,8 @@ export async function cambiarEstadoCuenta(formData: FormData) {
   await prisma.user.update({
     where: { id: userId },
     data: {
-      estado,
-      suspendedAt: estado === "SUSPENDED" ? new Date() : null,
+      status,
+      suspendedAt: status === "SUSPENDED" ? new Date() : null,
     },
   });
 
@@ -36,10 +36,10 @@ export async function cambiarEstadoCuenta(formData: FormData) {
 
 const TierInput = z.object({
   userId: z.string().min(1),
-  tier: z.enum(["FREE", "PRO", "ILIMITADO"]),
+  tier: z.enum(["FREE", "PRO", "UNLIMITED"]),
 });
 
-export async function asignarTier(formData: FormData) {
+export async function assignTier(formData: FormData) {
   await requireAdmin();
 
   const parsed = TierInput.safeParse(Object.fromEntries(formData));
@@ -60,10 +60,10 @@ const ResetInput = z.object({
 });
 
 /**
- * Genera un link de restablecimiento de contraseña para compartir manualmente
- * (p. ej. por WhatsApp). Un solo uso, vigencia de 1 hora.
+ * Generates a password reset link to share by hand (e.g. over WhatsApp).
+ * Single use, valid for 1 hour.
  */
-export async function generarLinkReset(formData: FormData) {
+export async function generateResetLink(formData: FormData) {
   await requireAdmin();
 
   const parsed = ResetInput.safeParse(Object.fromEntries(formData));
@@ -75,25 +75,25 @@ export async function generarLinkReset(formData: FormData) {
   });
   if (!user) return { ok: false as const, error: "Cuenta no encontrada" };
 
-  const token = await crearTokenReset(user.email);
-  return { ok: true as const, url: await urlReset(user.email, token) };
+  const token = await createResetToken(user.email);
+  return { ok: true as const, url: await resetUrl(user.email, token) };
 }
 
-const NotaInput = z.object({
+const NoteInput = z.object({
   userId: z.string().min(1),
-  nota: z.string().max(2000),
+  note: z.string().max(2000),
 });
 
-export async function guardarNotaAdmin(formData: FormData) {
+export async function saveAdminNote(formData: FormData) {
   await requireAdmin();
 
-  const parsed = NotaInput.safeParse(Object.fromEntries(formData));
+  const parsed = NoteInput.safeParse(Object.fromEntries(formData));
   if (!parsed.success) throw new Error("Datos inválidos");
-  const { userId, nota } = parsed.data;
+  const { userId, note } = parsed.data;
 
   await prisma.user.update({
     where: { id: userId },
-    data: { notasAdmin: nota.trim() || null },
+    data: { adminNotes: note.trim() || null },
   });
 
   revalidatePath(`/admin/cuentas/${userId}`);

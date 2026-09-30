@@ -2,16 +2,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { LIMITES_TIER, inicioDeMes } from "@/lib/limits";
-import { fechaCorta, fechaLarga } from "@/lib/format";
-import { cambiarEstadoCuenta, asignarTier, guardarNotaAdmin } from "@/app/actions/admin";
+import { TIER_LIMITS, startOfMonth } from "@/lib/limits";
+import { formatShortDate, formatLongDate } from "@/lib/format";
+import { setAccountStatus, assignTier, saveAdminNote } from "@/app/actions/admin";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { ResetLinkAdmin } from "@/components/ResetLinkAdmin";
 
-export default async function CuentaAdminPage({
+export default async function AdminAccountPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -25,132 +25,132 @@ export default async function CuentaAdminPage({
       id: true,
       name: true,
       email: true,
-      cedula: true,
+      licenseNumber: true,
       createdAt: true,
-      estado: true,
+      status: true,
       tier: true,
       role: true,
       tierUpdatedAt: true,
       suspendedAt: true,
-      notasAdmin: true,
-      _count: { select: { pacientes: true, consultas: true } },
+      adminNotes: true,
+      _count: { select: { patients: true, consultations: true } },
     },
   });
   if (!user) notFound();
 
-  const [usoTotal, consultasMes, ultimasConsultas] = await Promise.all([
-    prisma.consulta.aggregate({
+  const [totalUsage, monthConsultations, recentConsultations] = await Promise.all([
+    prisma.consultation.aggregate({
       where: { userId: id },
       _sum: { inputTokens: true, outputTokens: true },
       _max: { createdAt: true },
     }),
-    prisma.consulta.count({ where: { userId: id, createdAt: { gte: inicioDeMes() } } }),
-    prisma.consulta.findMany({
+    prisma.consultation.count({ where: { userId: id, createdAt: { gte: startOfMonth() } } }),
+    prisma.consultation.findMany({
       where: { userId: id },
       orderBy: { createdAt: "desc" },
       take: 10,
       select: {
         id: true,
         createdAt: true,
-        modeloIA: true,
+        aiModel: true,
         inputTokens: true,
         outputTokens: true,
-        aprobadoAt: true,
+        approvedAt: true,
       },
     }),
   ]);
 
-  const limite = LIMITES_TIER[user.tier].consultasMes;
-  const esPropia = user.id === admin.userId;
+  const limit = TIER_LIMITS[user.tier].consultationsPerMonth;
+  const isSelf = user.id === admin.userId;
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Encabezado */}
+      {/* Header */}
       <div>
         <Link href="/admin" className="text-xs font-semibold text-primary hover:underline">
           ← Administración
         </Link>
         <div className="mt-3 flex flex-wrap items-center gap-4">
-          <Avatar nombre={user.name ?? user.email} size="md" />
+          <Avatar name={user.name ?? user.email} size="md" />
           <div className="min-w-0">
             <h1 className="font-display text-[24px] font-bold tracking-tight text-text">
               {user.name ?? "Sin nombre"}
             </h1>
             <p className="text-sm text-text-3">
               {user.email}
-              {user.cedula ? ` · Cédula ${user.cedula}` : ""} · Alta el{" "}
-              {fechaLarga(user.createdAt)}
+              {user.licenseNumber ? ` · Cédula ${user.licenseNumber}` : ""} · Alta el{" "}
+              {formatLongDate(user.createdAt)}
             </p>
           </div>
           <div className="flex gap-2">
             {user.role === "ADMIN" && <Badge tone="info">Admin</Badge>}
-            {user.estado === "ACTIVE" ? (
+            {user.status === "ACTIVE" ? (
               <Badge tone="success">Activa</Badge>
-            ) : user.estado === "SUSPENDED" ? (
+            ) : user.status === "SUSPENDED" ? (
               <Badge tone="danger">Suspendida</Badge>
             ) : (
               <Badge tone="warning">Pendiente</Badge>
             )}
             <Badge tone={user.tier === "FREE" ? "neutral" : "primary"}>
-              {LIMITES_TIER[user.tier].nombre}
+              {TIER_LIMITS[user.tier].name}
             </Badge>
           </div>
         </div>
         {user.suspendedAt && (
           <p className="mt-2 text-[12.5px] text-danger">
-            Suspendida el {fechaLarga(user.suspendedAt)}
+            Suspendida el {formatLongDate(user.suspendedAt)}
           </p>
         )}
       </div>
 
-      {/* Stats de la cuenta */}
+      {/* Account stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Pacientes" value={`${user._count.pacientes}`} nota="Registrados" />
-        <StatCard label="Consultas totales" value={`${user._count.consultas}`} nota="Desde el alta" />
+        <StatCard label="Pacientes" value={`${user._count.patients}`} note="Registrados" />
+        <StatCard label="Consultas totales" value={`${user._count.consultations}`} note="Desde el alta" />
         <StatCard
           label="Consultas este mes"
-          value={limite === null ? `${consultasMes}` : `${consultasMes} / ${limite}`}
-          nota={limite === null ? "Sin límite" : `Límite del plan ${LIMITES_TIER[user.tier].nombre}`}
-          warning={limite !== null && consultasMes >= limite}
+          value={limit === null ? `${monthConsultations}` : `${monthConsultations} / ${limit}`}
+          note={limit === null ? "Sin límite" : `Límite del plan ${TIER_LIMITS[user.tier].name}`}
+          warning={limit !== null && monthConsultations >= limit}
         />
         <StatCard
           label="Tokens IA"
           value={(
-            (usoTotal._sum.inputTokens ?? 0) + (usoTotal._sum.outputTokens ?? 0)
+            (totalUsage._sum.inputTokens ?? 0) + (totalUsage._sum.outputTokens ?? 0)
           ).toLocaleString("es-MX")}
-          nota={
-            usoTotal._max.createdAt
-              ? `Última actividad ${fechaCorta(usoTotal._max.createdAt)}`
+          note={
+            totalUsage._max.createdAt
+              ? `Última actividad ${formatShortDate(totalUsage._max.createdAt)}`
               : "Sin actividad"
           }
         />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.55fr_1fr]">
-        {/* Últimas consultas (solo metadatos — sin contenido clínico) */}
+        {/* Latest consultations (metadata only, no clinical content) */}
         <Card className="overflow-hidden">
           <div className="border-b border-border px-5 py-4">
             <span className="font-display text-[15px] font-bold text-text">Últimas consultas</span>
           </div>
-          {ultimasConsultas.length === 0 ? (
+          {recentConsultations.length === 0 ? (
             <p className="px-5 py-8 text-center text-sm text-text-3">Sin consultas todavía.</p>
           ) : (
-            ultimasConsultas.map((c) => (
+            recentConsultations.map((c) => (
               <div
                 key={c.id}
                 className="flex items-center gap-3 border-b border-border px-5 py-3 last:border-0"
               >
                 <div className="min-w-0 flex-1">
                   <div className="text-[13px] font-semibold text-text">
-                    {fechaCorta(c.createdAt)}
+                    {formatShortDate(c.createdAt)}
                   </div>
                   <div className="font-mono text-[11.5px] tabular-nums text-text-3">
-                    {c.modeloIA ?? "Sin plan generado"}
+                    {c.aiModel ?? "Sin plan generado"}
                     {c.inputTokens != null &&
                       ` · ${((c.inputTokens ?? 0) + (c.outputTokens ?? 0)).toLocaleString("es-MX")} tokens`}
                   </div>
                 </div>
-                {c.aprobadoAt ? (
+                {c.approvedAt ? (
                   <Badge tone="success">Aprobada</Badge>
                 ) : (
                   <Badge tone="neutral">Sin aprobar</Badge>
@@ -160,24 +160,24 @@ export default async function CuentaAdminPage({
           )}
         </Card>
 
-        {/* Controles de admin */}
+        {/* Admin controls */}
         <div className="flex flex-col gap-4">
           <Card className="p-4.5">
             <div className="mb-2.5 text-sm font-bold text-text">Plan</div>
-            <form action={asignarTier} className="flex items-center gap-2.5">
+            <form action={assignTier} className="flex items-center gap-2.5">
               <input type="hidden" name="userId" value={user.id} />
               <select
                 name="tier"
                 defaultValue={user.tier}
                 className="h-9 flex-1 rounded-ctl border border-border-strong bg-surface px-2.5 text-sm text-text"
               >
-                {Object.entries(LIMITES_TIER).map(([tier, info]) => (
+                {Object.entries(TIER_LIMITS).map(([tier, info]) => (
                   <option key={tier} value={tier}>
-                    {info.nombre}
-                    {info.consultasMes !== null
-                      ? ` — ${info.consultasMes} consultas/mes`
+                    {info.name}
+                    {info.consultationsPerMonth !== null
+                      ? ` — ${info.consultationsPerMonth} consultas/mes`
                       : " — sin límite"}
-                    {info.precioMXN > 0 ? ` ($${info.precioMXN} MXN)` : ""}
+                    {info.priceMXN > 0 ? ` ($${info.priceMXN} MXN)` : ""}
                   </option>
                 ))}
               </select>
@@ -187,18 +187,18 @@ export default async function CuentaAdminPage({
             </form>
             {user.tierUpdatedAt && (
               <p className="mt-2 text-[11.5px] text-text-3">
-                Último cambio: {fechaCorta(user.tierUpdatedAt)}
+                Último cambio: {formatShortDate(user.tierUpdatedAt)}
               </p>
             )}
           </Card>
 
           <Card className="p-4.5">
             <div className="mb-2.5 text-sm font-bold text-text">Nota interna</div>
-            <form action={guardarNotaAdmin} className="flex flex-col gap-2.5">
+            <form action={saveAdminNote} className="flex flex-col gap-2.5">
               <input type="hidden" name="userId" value={user.id} />
               <textarea
-                name="nota"
-                defaultValue={user.notasAdmin ?? ""}
+                name="note"
+                defaultValue={user.adminNotes ?? ""}
                 rows={3}
                 maxLength={2000}
                 placeholder="Solo visible para ti (acuerdos, contexto, seguimiento)…"
@@ -218,28 +218,28 @@ export default async function CuentaAdminPage({
             <ResetLinkAdmin userId={user.id} />
           </Card>
 
-          {!esPropia && (
+          {!isSelf && (
             <Card className="p-4.5">
               <div className="mb-2.5 text-sm font-bold text-text">
-                {user.estado === "SUSPENDED" ? "Reactivar cuenta" : "Suspender cuenta"}
+                {user.status === "SUSPENDED" ? "Reactivar cuenta" : "Suspender cuenta"}
               </div>
               <p className="mb-3 text-[12.5px] text-text-3">
-                {user.estado === "SUSPENDED"
+                {user.status === "SUSPENDED"
                   ? "La cuenta podrá volver a iniciar sesión y usar la app."
                   : "La cuenta no podrá iniciar sesión ni usar la app hasta que la reactives. Sus datos no se borran."}
               </p>
-              <form action={cambiarEstadoCuenta}>
+              <form action={setAccountStatus}>
                 <input type="hidden" name="userId" value={user.id} />
                 <input
                   type="hidden"
-                  name="estado"
-                  value={user.estado === "SUSPENDED" ? "ACTIVE" : "SUSPENDED"}
+                  name="status"
+                  value={user.status === "SUSPENDED" ? "ACTIVE" : "SUSPENDED"}
                 />
                 <Button
                   size="sm"
-                  variant={user.estado === "SUSPENDED" ? "secondary" : "destructive"}
+                  variant={user.status === "SUSPENDED" ? "secondary" : "destructive"}
                 >
-                  {user.estado === "SUSPENDED" ? "Reactivar" : "Suspender"}
+                  {user.status === "SUSPENDED" ? "Reactivar" : "Suspender"}
                 </Button>
               </form>
             </Card>
@@ -253,12 +253,12 @@ export default async function CuentaAdminPage({
 function StatCard({
   label,
   value,
-  nota,
+  note,
   warning,
 }: {
   label: string;
   value: string;
-  nota: string;
+  note: string;
   warning?: boolean;
 }) {
   return (
@@ -269,7 +269,7 @@ function StatCard({
       <div className={`mt-1.5 font-mono text-[26px] font-semibold tabular-nums ${warning ? "text-warning" : "text-text"}`}>
         {value}
       </div>
-      <div className="mt-0.5 text-[11.5px] text-text-3">{nota}</div>
+      <div className="mt-0.5 text-[11.5px] text-text-3">{note}</div>
     </Card>
   );
 }

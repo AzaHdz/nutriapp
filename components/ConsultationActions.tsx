@@ -2,20 +2,20 @@
 
 import { useState, useTransition } from "react";
 import {
-  generarPlanAction,
-  guardarPlanFinal,
-  aprobarConsulta,
-} from "@/app/actions/consultas";
+  generatePlanAction,
+  saveFinalPlan,
+  approveConsultation,
+} from "@/app/actions/consultations";
 import { Button, buttonVariants } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 
-export function GenerarPlanButton({
-  consultaId,
-  yaHayPlan,
+export function GeneratePlanButton({
+  consultationId,
+  hasPlan,
 }: {
-  consultaId: string;
-  yaHayPlan: boolean;
+  consultationId: string;
+  hasPlan: boolean;
 }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,7 @@ export function GenerarPlanButton({
           setError(null);
           startTransition(async () => {
             try {
-              const r = await generarPlanAction(consultaId);
+              const r = await generatePlanAction(consultationId);
               if (!r.ok) setError(r.error);
             } catch (e) {
               setError(e instanceof Error ? e.message : "Error al generar el plan");
@@ -38,7 +38,7 @@ export function GenerarPlanButton({
       >
         {pending
           ? "Generando plan…"
-          : yaHayPlan
+          : hasPlan
             ? "Regenerar plan con IA"
             : "Generar plan con IA"}
       </Button>
@@ -53,40 +53,40 @@ export function GenerarPlanButton({
 }
 
 export function PlanEditorJson({
-  consultaId,
+  consultationId,
   planJson,
   label = "Editar plan (JSON)",
 }: {
-  consultaId: string;
+  consultationId: string;
   planJson: string;
   label?: string;
 }) {
-  const [abierto, setAbierto] = useState(false);
-  const [valor, setValor] = useState(planJson);
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(planJson);
   const [pending, startTransition] = useTransition();
-  const [mensaje, setMensaje] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
-  // Re-sincroniza con el plan vigente cuando cambia desde el editor visual
-  // (ajuste durante el render, no en un efecto: evita el render en cascada).
-  const [planJsonPrevio, setPlanJsonPrevio] = useState(planJson);
-  if (planJsonPrevio !== planJson) {
-    setPlanJsonPrevio(planJson);
-    setValor(planJson);
+  // Re-syncs with the current plan when the visual editor changes it
+  // (adjusted during render, not in an effect, to avoid cascading renders).
+  const [prevPlanJson, setPrevPlanJson] = useState(planJson);
+  if (prevPlanJson !== planJson) {
+    setPrevPlanJson(planJson);
+    setValue(planJson);
   }
 
   return (
     <div className="rounded-card border border-border bg-surface">
       <button
-        onClick={() => setAbierto(!abierto)}
+        onClick={() => setOpen(!open)}
         className="w-full rounded-card px-4 py-3 text-left text-sm font-medium text-text-2 transition-colors hover:bg-surface-3"
       >
-        {abierto ? "▾" : "▸"} {label}
+        {open ? "▾" : "▸"} {label}
       </button>
-      {abierto && (
+      {open && (
         <div className="flex flex-col gap-2 border-t border-border p-4">
           <Textarea
-            value={valor}
-            onChange={(e) => setValor(e.target.value)}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
             rows={18}
             spellCheck={false}
             className="font-mono text-xs"
@@ -96,20 +96,20 @@ export function PlanEditorJson({
               variant="secondary"
               disabled={pending}
               onClick={() => {
-                setMensaje(null);
+                setMessage(null);
                 startTransition(async () => {
                   try {
-                    await guardarPlanFinal(consultaId, valor);
-                    setMensaje("Guardado ✓ (la aprobación previa se invalidó)");
+                    await saveFinalPlan(consultationId, value);
+                    setMessage("Guardado ✓ (la aprobación previa se invalidó)");
                   } catch (e) {
-                    setMensaje(e instanceof Error ? e.message : "Error al guardar");
+                    setMessage(e instanceof Error ? e.message : "Error al guardar");
                   }
                 });
               }}
             >
               {pending ? "Guardando…" : "Guardar cambios"}
             </Button>
-            {mensaje && <p className="text-sm text-text-2">{mensaje}</p>}
+            {message && <p className="text-sm text-text-2">{message}</p>}
           </div>
         </div>
       )}
@@ -117,23 +117,23 @@ export function PlanEditorJson({
   );
 }
 
-export function AprobarButton({
-  consultaId,
-  aprobado,
+export function ApproveButton({
+  consultationId,
+  approved,
 }: {
-  consultaId: string;
-  aprobado: boolean;
+  consultationId: string;
+  approved: boolean;
 }) {
   const [pending, startTransition] = useTransition();
-  const [advertencias, setAdvertencias] = useState<string[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  if (aprobado) {
+  if (approved) {
     return (
       <div className="flex items-center gap-3">
         <Badge tone="success">✓ Plan aprobado</Badge>
         <a
-          href={`/consultas/${consultaId}/imprimir`}
+          href={`/consultas/${consultationId}/imprimir`}
           target="_blank"
           className={buttonVariants({ variant: "secondary", size: "sm" })}
         >
@@ -143,12 +143,12 @@ export function AprobarButton({
     );
   }
 
-  const aprobar = (confirmar: boolean) => {
+  const approve = (confirm: boolean) => {
     setError(null);
     startTransition(async () => {
       try {
-        const r = await aprobarConsulta(consultaId, { confirmar });
-        setAdvertencias(r.aprobado ? [] : r.advertencias);
+        const r = await approveConsultation(consultationId, { confirm });
+        setWarnings(r.approved ? [] : r.warnings);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Error al aprobar");
       }
@@ -157,15 +157,15 @@ export function AprobarButton({
 
   return (
     <div className="flex flex-col gap-2">
-      <Button variant="secondary" disabled={pending} onClick={() => aprobar(false)}>
+      <Button variant="secondary" disabled={pending} onClick={() => approve(false)}>
         {pending ? "Validando…" : "Aprobar plan"}
       </Button>
-      {advertencias.length > 0 && (
+      {warnings.length > 0 && (
         <div className="rounded-card border border-warning-brd bg-warning-soft p-3 text-sm text-warning">
           <p className="font-medium">El plan no se aprobó: la validación numérica encontró…</p>
           <ul className="mt-1 list-disc pl-5">
-            {advertencias.map((a, i) => (
-              <li key={i}>{a}</li>
+            {warnings.map((w, i) => (
+              <li key={i}>{w}</li>
             ))}
           </ul>
           <p className="mt-2">Corrige el plan, o aprueba bajo tu criterio profesional:</p>
@@ -174,7 +174,7 @@ export function AprobarButton({
             size="sm"
             className="mt-2"
             disabled={pending}
-            onClick={() => aprobar(true)}
+            onClick={() => approve(true)}
           >
             Aprobar de todas formas
           </Button>

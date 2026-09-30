@@ -1,37 +1,37 @@
-/* Planify — tokens de diseño · Tailwind CSS 4 · dirección 1c "Ciruela nutricional"
-   Modo oscuro: clase .dark en <html> (paridad total de tokens). */
+/* Planify design tokens · Tailwind CSS 4 · direction 1c "Ciruela nutricional"
+   Dark mode: .dark class on <html> (full token parity). */
 @import "tailwindcss";
 
-/* Habilita variantes `dark:` basadas en la clase .dark (Tailwind 4). Casi no se usan:
-   los colores son tokens semánticos que se voltean solos al cambiar .dark. */
+/* Enables `dark:` variants driven by the .dark class (Tailwind 4). Rarely used:
+   colors are semantic tokens that flip on their own when .dark changes. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Superficies y texto */
-  --bg: #FBF7F5;            /* fondo app (marfil rosado) */
-  --surface: #FFFFFF;       /* cards, tablas, modales */
+  /* Surfaces and text */
+  --bg: #FBF7F5;            /* app background (rosy ivory) */
+  --surface: #FFFFFF;       /* cards, tables, modals */
   --surface-2: #F6F0EE;     /* sidebar, thead */
-  --surface-3: #F1E9E6;     /* hover de fila, wells, badge neutro */
+  --surface-3: #F1E9E6;     /* row hover, wells, neutral badge */
   --border: #E9E2E0;
-  --border-strong: #DCD2D8; /* inputs, botón secundario */
-  --text: #33202C;          /* 12.9:1 sobre surface */
+  --border-strong: #DCD2D8; /* inputs, secondary button */
+  --text: #33202C;          /* 12.9:1 on surface */
   --text-2: #6E5A66;        /* 5.6:1 */
   --text-3: #8C7A85;        /* meta ≥12px */
-  /* Marca */
+  /* Brand */
   --primary: #7A3B5E;
   --primary-hover: #5E2C48;
-  --on-primary: #FFFEFE;    /* 6.9:1 sobre primary */
+  --on-primary: #FFFEFE;    /* 6.9:1 on primary */
   --primary-soft: #F5EAF0;
   --primary-soft-brd: #DEBCCE;
-  --brand-panel: #4C2139;   /* panel de marca (login) — invariante entre modos */
-  --accent: #C2603E;        /* terracota: gráficas, IA */
+  --brand-panel: #4C2139;   /* brand panel (login), the same in both modes */
+  --accent: #C2603E;        /* terracotta: charts, AI */
   --accent-soft: #F9EFE9;
-  /* Semánticos */
+  /* Semantic */
   --success: #4A7C50;  --success-soft: #E9F2EA;  --success-brd: #C9E0CC;
   --warning: #96551F;  --warning-soft: #F8EDDE;  --warning-brd: #EBD7B8;
   --danger:  #B5453C;  --danger-soft: #F9E9E7;   --danger-brd: #EED0CC;
   --info:    #4A63A8;  --info-soft: #EBEFF8;     --info-brd: #CCD6EC;
-  /* Estado clínico = alias de semánticos */
+  /* Clinical status = aliases of the semantic colors */
   --range-in: var(--success);
   --range-out: var(--warning);
   --range-critical: var(--danger);
@@ -47,7 +47,7 @@
   --text: #F1EAEE;          /* 14.2:1 */
   --text-2: #C4B5BD;
   --text-3: #9A8B93;
-  --primary: #C77BA0;       /* 5.1:1 sobre surface */
+  --primary: #C77BA0;       /* 5.1:1 on surface */
   --primary-hover: #D9A2BE;
   --on-primary: #2B0E1F;
   --primary-soft: #3A2430;
@@ -62,7 +62,7 @@
 }
 
 @theme inline {
-  --color-*: initial; /* elimina la paleta default de Tailwind */
+  --color-*: initial; /* removes Tailwind's default palette */
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
@@ -96,21 +96,21 @@
   --color-range-out: var(--range-out);
   --color-range-critical: var(--range-critical);
 
-  /* Fuentes self-hosted vía next/font (ver app/layout.tsx) */
-  --font-display: var(--font-bricolage), sans-serif; /* solo títulos */
-  --font-sans: var(--font-dm-sans), system-ui, sans-serif; /* UI y cuerpo */
-  --font-mono: var(--font-plex-mono), monospace; /* cifras clínicas, tabular-nums */
+  /* Fonts self-hosted via next/font (see app/layout.tsx) */
+  --font-display: var(--font-bricolage), sans-serif; /* headings only */
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif; /* UI and body */
+  --font-mono: var(--font-plex-mono), monospace; /* clinical figures, tabular-nums */
 
-  --radius-chip: 6px;   /* checkbox, chips pequeños */
+  --radius-chip: 6px;   /* checkbox, small chips */
   --radius-ctl: 10px;   /* inputs, selects */
   --radius-card: 14px;  /* cards, modales, banners */
-  --radius-pill: 999px; /* botones, badges, avatares */
+  --radius-pill: 999px; /* buttons, badges, avatars */
 
   --shadow-sm: 0 1px 2px rgb(58 34 51 / .06);
   --shadow-md: 0 4px 12px rgb(58 34 51 / .08);
   --shadow-lg: 0 16px 40px rgb(58 34 51 / .16);
 
-  --spacing: 4px; /* escala 4-8-12-16-24-32-48 */
+  --spacing: 4px; /* 4-8-12-16-24-32-48 scale */
 }
 
 body {
@@ -119,8 +119,8 @@ body {
   font-family: var(--font-sans);
 }
 
-/* La vista de impresión (/consultas/[id]/imprimir) siempre en claro,
-   aunque el usuario tenga el tema oscuro activo. */
+/* The print view (/consultas/[id]/imprimir) is always light,
+   even when the user has the dark theme on. */
 @media print {
   .dark {
     --bg: #FBF7F5;

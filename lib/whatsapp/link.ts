@@ -1,59 +1,58 @@
-/** Enlaces wa.me para recordatorios de cita.
+/** wa.me links for appointment reminders.
  *
- *  Sin API ni claves: `wa.me` solo abre WhatsApp con el mensaje ya escrito y el
- *  nutriólogo pulsa enviar. El envío automático (WhatsApp Cloud API) es otra fase.
+ *  No API or keys: `wa.me` just opens WhatsApp with the message prefilled and the
+ *  nutritionist presses send. Automatic sending (WhatsApp Cloud API) is a later phase.
  *
- *  El teléfono del paciente se captura como texto libre y nunca se validó, así que
- *  aquí se normaliza a E.164 con la tolerancia necesaria para lo que la gente
- *  escribe de verdad. */
+ *  The patient's phone is captured as free text and was never validated, so it is
+ *  normalized to E.164 here with enough tolerance for what people actually type. */
 
-import { fechaLargaEnZona, horaEnZona } from "@/lib/fechas";
+import { longDateInZone, timeInZone } from "@/lib/dates";
 
-/** Texto libre → E.164 mexicano sin el `+` (`525512345678`), o null si no se puede.
+/** Free text → Mexican E.164 without the `+` (`525512345678`), or null if impossible.
  *
- *  Acepta "55 1234 5678", "(55) 1234-5678", "+52 55 1234 5678" y el viejo formato
- *  de WhatsApp con el 1 tras el 52 ("52 1 55 ..."), que hoy ya no se usa pero
- *  sigue guardado en muchas agendas. */
-export function normalizarTelefonoMX(raw?: string | null): string | null {
+ *  Accepts "55 1234 5678", "(55) 1234-5678", "+52 55 1234 5678" and the old WhatsApp
+ *  format with a 1 after the 52 ("52 1 55 ..."), no longer used but still stored in
+ *  many address books. */
+export function normalizeMxPhone(raw?: string | null): string | null {
   if (!raw) return null;
 
   let d = raw.replace(/\D/g, "");
-  if (d.startsWith("00")) d = d.slice(2); // prefijo internacional a la antigua
+  if (d.startsWith("00")) d = d.slice(2); // old-style international prefix
 
-  if (d.length === 10) return `52${d}`; // número nacional
+  if (d.length === 10) return `52${d}`; // national number
   if (d.length === 12 && d.startsWith("52")) return d;
   if (d.length === 13 && d.startsWith("521")) return `52${d.slice(3)}`;
 
   return null;
 }
 
-export function enlaceWhatsApp(e164: string, mensaje: string): string {
-  return `https://wa.me/${e164}?text=${encodeURIComponent(mensaje)}`;
+export function whatsAppLink(e164: string, message: string): string {
+  return `https://wa.me/${e164}?text=${encodeURIComponent(message)}`;
 }
 
-/** Primer nombre, para que el saludo no suene a oficio. */
-function primerNombre(nombre: string): string {
-  return nombre.trim().split(/\s+/)[0] ?? nombre;
+/** First name only, so the greeting doesn't sound like an official letter. */
+function firstName(name: string): string {
+  return name.trim().split(/\s+/)[0] ?? name;
 }
 
-/** Mensaje de recordatorio.
+/** Reminder message.
  *
- *  IMPORTANTE: no debe llevar ningún dato clínico. Solo nombre, cuándo y con quién.
- *  El paciente lo recibe en un canal que no controlamos y que puede leer cualquiera
- *  con acceso a su teléfono. */
-export function mensajeRecordatorio({
-  paciente,
-  nutriologo,
-  inicioAt,
+ *  IMPORTANT: it must not carry any clinical data. Only name, when and with whom.
+ *  The patient receives it on a channel we don't control, which anyone with access
+ *  to their phone can read. */
+export function reminderMessage({
+  patientName,
+  nutritionistName,
+  startsAt,
 }: {
-  paciente: string;
-  nutriologo?: string | null;
-  inicioAt: Date;
+  patientName: string;
+  nutritionistName?: string | null;
+  startsAt: Date;
 }): string {
-  const con = nutriologo?.trim() ? ` con ${nutriologo.trim()}` : "";
+  const withWhom = nutritionistName?.trim() ? ` con ${nutritionistName.trim()}` : "";
   return (
-    `Hola ${primerNombre(paciente)}, te recuerdo tu cita${con} el ` +
-    `${fechaLargaEnZona(inicioAt)} a las ${horaEnZona(inicioAt)}. ` +
+    `Hola ${firstName(patientName)}, te recuerdo tu cita${withWhom} el ` +
+    `${longDateInZone(startsAt)} a las ${timeInZone(startsAt)}. ` +
     `Si necesitas cambiarla, contéstame por aquí. ¡Nos vemos!`
   );
 }

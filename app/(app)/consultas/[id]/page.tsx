@@ -2,17 +2,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { edadEnAnios } from "@/lib/calculos";
-import { PlanAlimenticio } from "@/lib/ai/planSchema";
+import { ageInYears } from "@/lib/calculations";
+import { MealPlan } from "@/lib/ai/planSchema";
 import { PlanView } from "@/components/PlanView";
-import { PlanResumen } from "@/components/PlanResumen";
+import { PlanSummary } from "@/components/PlanSummary";
 import { PlanPanel } from "@/components/PlanPanel";
 import { Card } from "@/components/ui/Card";
 import { Stat } from "@/components/ui/Stat";
 import { Badge } from "@/components/ui/Badge";
-import { GenerarPlanButton, AprobarButton } from "@/components/ConsultaAcciones";
+import { GeneratePlanButton, ApproveButton } from "@/components/ConsultationActions";
 
-export default async function ConsultaPage({
+export default async function ConsultationPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -20,21 +20,21 @@ export default async function ConsultaPage({
   const { id } = await params;
   const { userId } = await requireUser();
 
-  const consulta = await prisma.consulta.findFirst({
+  const consultation = await prisma.consultation.findFirst({
     where: { id, userId },
-    include: { paciente: true },
+    include: { patient: true },
   });
-  if (!consulta) notFound();
+  if (!consultation) notFound();
 
-  const plan = consulta.planFinal ? PlanAlimenticio.parse(consulta.planFinal) : null;
+  const plan = consultation.finalPlan ? MealPlan.parse(consultation.finalPlan) : null;
 
-  const medidas: [string, number | null, string][] = [
-    ["Peso", consulta.peso, "kg"],
-    ["Altura", consulta.altura, "cm"],
-    ["Cintura", consulta.cintura, "cm"],
-    ["Cadera", consulta.cadera, "cm"],
-    ["Brazo", consulta.brazo, "cm"],
-    ["Grasa", consulta.grasaCorporal, "%"],
+  const measurements: [string, number | null, string][] = [
+    ["Peso", consultation.weight, "kg"],
+    ["Altura", consultation.height, "cm"],
+    ["Cintura", consultation.waist, "cm"],
+    ["Cadera", consultation.hip, "cm"],
+    ["Brazo", consultation.arm, "cm"],
+    ["Grasa", consultation.bodyFatPct, "%"],
   ];
 
   return (
@@ -43,18 +43,18 @@ export default async function ConsultaPage({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm text-text-3">
-            <Link href={`/pacientes/${consulta.pacienteId}`} className="hover:underline">
-              {consulta.paciente.nombre}
+            <Link href={`/pacientes/${consultation.patientId}`} className="hover:underline">
+              {consultation.patient.name}
             </Link>{" "}
-            · {edadEnAnios(consulta.paciente.fechaNacimiento)} años ·{" "}
-            {consulta.createdAt.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
+            · {ageInYears(consultation.patient.birthDate)} años ·{" "}
+            {consultation.createdAt.toLocaleDateString("es-MX", { day: "numeric", month: "long", year: "numeric" })}
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-2.5">
             <h1 className="font-display text-2xl font-bold tracking-tight text-text">
-              {plan ? `Plan alimenticio · ${consulta.paciente.nombre.split(" ")[0]}` : "Consulta"}
+              {plan ? `Plan alimenticio · ${consultation.patient.name.split(" ")[0]}` : "Consulta"}
             </h1>
             {plan && <Badge tone="primary">✦ Generado por IA</Badge>}
-            {consulta.aprobadoAt ? (
+            {consultation.approvedAt ? (
               <Badge tone="success">Aprobado</Badge>
             ) : plan ? (
               <Badge tone="warning">Borrador — pendiente de aprobar</Badge>
@@ -62,26 +62,26 @@ export default async function ConsultaPage({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <GenerarPlanButton consultaId={consulta.id} yaHayPlan={Boolean(plan)} />
-          {plan && <AprobarButton consultaId={consulta.id} aprobado={Boolean(consulta.aprobadoAt)} />}
+          <GeneratePlanButton consultationId={consultation.id} hasPlan={Boolean(plan)} />
+          {plan && <ApproveButton consultationId={consultation.id} approved={Boolean(consultation.approvedAt)} />}
         </div>
       </div>
 
-      {/* Antropometría */}
+      {/* Anthropometrics */}
       <Card className="p-5">
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
-          {medidas.map(([etiqueta, valor, unidad]) => (
-            <Stat key={etiqueta} label={etiqueta} value={valor ?? "—"} unit={valor != null ? unidad : undefined} />
+          {measurements.map(([label, value, unit]) => (
+            <Stat key={label} label={label} value={value ?? "—"} unit={value != null ? unit : undefined} />
           ))}
         </div>
         <div className="mt-4 grid gap-4 border-t border-border pt-4 sm:grid-cols-2">
           <div>
             <p className="text-xs text-text-3">Objetivos</p>
-            <p className="text-sm text-text">{consulta.objetivos}</p>
+            <p className="text-sm text-text">{consultation.goals}</p>
           </div>
           <div>
             <p className="text-xs text-text-3">Restricciones</p>
-            <p className="text-sm text-text">{consulta.restricciones}</p>
+            <p className="text-sm text-text">{consultation.restrictions}</p>
           </div>
         </div>
       </Card>
@@ -95,27 +95,27 @@ export default async function ConsultaPage({
         </div>
       ) : (
         <PlanPanel
-          consultaId={consulta.id}
+          consultationId={consultation.id}
           plan={plan}
           readView={
             <>
               <PlanView plan={plan} />
-              {consulta.promptVersion && (
+              {consultation.promptVersion && (
                 <p className="text-xs text-text-3">
-                  Generado con {consulta.modeloIA ?? "modelo desconocido"} ({consulta.promptVersion}) ·{" "}
-                  {consulta.inputTokens ?? "?"} tokens entrada / {consulta.outputTokens ?? "?"} salida
+                  Generado con {consultation.aiModel ?? "modelo desconocido"} ({consultation.promptVersion}) ·{" "}
+                  {consultation.inputTokens ?? "?"} tokens entrada / {consultation.outputTokens ?? "?"} salida
                 </p>
               )}
             </>
           }
-          resumen={
+          summary={
             <>
-              <PlanResumen plan={plan} />
-              {plan.recomendacionesGenerales.length > 0 && (
+              <PlanSummary plan={plan} />
+              {plan.generalRecommendations.length > 0 && (
                 <Card className="p-5">
                   <div className="mb-2.5 font-display text-[15px] font-bold text-text">Recomendaciones</div>
                   <ul className="flex list-disc flex-col gap-1 pl-5 text-[13px] text-text-2">
-                    {plan.recomendacionesGenerales.map((r, i) => (
+                    {plan.generalRecommendations.map((r, i) => (
                       <li key={i}>{r}</li>
                     ))}
                   </ul>

@@ -26,7 +26,7 @@ const providers: NextAuthConfig["providers"] = [
       const ok = await bcrypt.compare(password, user.passwordHash);
       if (!ok) return null;
 
-      // El primer admin se define por env var — se auto-repara si se recrea la BD
+      // The first admin comes from an env var, so it self-heals if the DB is recreated
       const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
       if (adminEmail && user.email === adminEmail && user.role !== "ADMIN") {
         user = await prisma.user.update({
@@ -35,14 +35,14 @@ const providers: NextAuthConfig["providers"] = [
         });
       }
 
-      if (user.estado === "SUSPENDED") return null;
+      if (user.status === "SUSPENDED") return null;
 
       return { id: user.id, email: user.email, name: user.name, role: user.role };
     },
   }),
 ];
 
-// Proveedores opcionales — se activan solo si sus env vars existen
+// Optional providers, enabled only when their env vars exist
 if (process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET) {
   providers.push(Google);
 }
@@ -64,26 +64,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        // El rol en el JWT es solo para UI (mostrar/ocultar link Admin);
-        // la autorización real siempre consulta la BD (requireUser/requireAdmin).
-        token.role = (user as { role?: Role }).role ?? "NUTRIOLOGO";
+        // The role in the JWT is for UI only (show/hide the Admin link);
+        // real authorization always checks the DB (requireUser/requireAdmin).
+        token.role = (user as { role?: Role }).role ?? "NUTRITIONIST";
       }
       return token;
     },
     session({ session, token }) {
       if (token.id) session.user.id = token.id as string;
-      session.user.role = (token.role as Role) ?? "NUTRIOLOGO";
+      session.user.role = (token.role as Role) ?? "NUTRITIONIST";
       return session;
     },
   },
 });
 
 /**
- * Devuelve la sesión o lanza. Úsalo al inicio de cada server action / página
- * protegida. Toda query a Prisma debe filtrar por este userId.
+ * Returns the session or bails out. Call it at the top of every server action /
+ * protected page. Every Prisma query must filter by this userId.
  *
- * Consulta la BD en cada invocación: el JWT dura 30 días y no se puede
- * revocar, así que este es el punto donde una suspensión surte efecto.
+ * It hits the DB on every call: the JWT lasts 30 days and cannot be revoked,
+ * so this is where a suspension takes effect.
  */
 export async function requireUser() {
   const session = await auth();
@@ -91,9 +91,9 @@ export async function requireUser() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { estado: true, role: true, tier: true },
+    select: { status: true, role: true, tier: true },
   });
-  if (!user || user.estado === "SUSPENDED") redirect("/login?error=suspendida");
+  if (!user || user.status === "SUSPENDED") redirect("/login?error=suspendida");
 
   return {
     userId: session.user.id,
@@ -103,7 +103,7 @@ export async function requireUser() {
   };
 }
 
-/** Como requireUser, pero además exige rol ADMIN. */
+/** Like requireUser, but also requires the ADMIN role. */
 export async function requireAdmin() {
   const u = await requireUser();
   if (u.role !== "ADMIN") redirect("/dashboard");

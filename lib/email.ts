@@ -1,12 +1,12 @@
 import { Resend } from "resend";
 
 /**
- * Envía el correo de restablecimiento. Sin AUTH_RESEND_KEY (dev), imprime el
- * link en el log del servidor para poder completar el flujo igualmente.
- * Nota: la key gratuita de Resend sin dominio verificado solo entrega correos
- * al dueño de la cuenta; para terceros se requiere dominio verificado.
+ * Sends the password reset email. Without AUTH_RESEND_KEY (dev), it prints the
+ * link to the server log so the flow can still be completed.
+ * Note: Resend's free key without a verified domain only delivers to the account
+ * owner; sending to anyone else requires a verified domain.
  */
-export async function enviarCorreoReset(email: string, url: string): Promise<void> {
+export async function sendResetEmail(email: string, url: string): Promise<void> {
   const key = process.env.AUTH_RESEND_KEY;
 
   if (!key) {
@@ -37,7 +37,7 @@ export async function enviarCorreoReset(email: string, url: string): Promise<voi
       `,
     });
   } catch (e) {
-    // No filtrar el fallo al usuario (la respuesta del flujo siempre es genérica)
+    // Don't leak the failure to the user (the flow always answers generically)
     console.error("[reset-password] Error enviando correo:", e);
   }
 }

@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { solicitarReset } from "@/app/actions/password";
+import { requestPasswordReset } from "@/app/actions/password";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 
-export default async function RecuperarPage({
+export default async function ForgotPasswordPage({
   searchParams,
 }: {
   searchParams: Promise<{ ok?: string; error?: string }>;
@@ -38,7 +38,7 @@ export default async function RecuperarPage({
           )}
 
           {!ok && (
-            <form action={solicitarReset} className="flex flex-col gap-4">
+            <form action={requestPasswordReset} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-text">Correo profesional</span>
                 <Input type="email" name="email" required placeholder="tu@correo.com" />

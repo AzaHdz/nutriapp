@@ -12,7 +12,7 @@ export function Label({
   );
 }
 
-/** Envuelve una etiqueta + control + texto de error/ayuda. */
+/** Wraps a label + control + error/hint text. */
 export function Field({
   label,
   htmlFor,

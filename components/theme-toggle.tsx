@@ -2,20 +2,20 @@
 
 import { useSyncExternalStore } from "react";
 
-/** La fuente de verdad del tema es la clase .dark en <html> (la fija el script
- *  no-flash de app/layout.tsx), así que se lee como store externo: el observer
- *  re-renderiza cuando la clase cambia, venga de donde venga. */
-function suscribirTema(onChange: () => void) {
+/** The theme's source of truth is the .dark class on <html> (set by the no-flash
+ *  script in app/layout.tsx), so it is read as an external store: the observer
+ *  re-renders whenever the class changes, wherever the change comes from. */
+function subscribeTheme(onChange: () => void) {
   const observer = new MutationObserver(onChange);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
   return () => observer.disconnect();
 }
 
-/** Botón sol/luna: alterna la clase .dark en <html> y persiste en localStorage. */
+/** Sun/moon button: toggles the .dark class on <html> and persists it in localStorage. */
 export function ThemeToggle() {
-  // En el servidor no hay tema: false, y tras hidratar se corrige solo.
+  // There is no theme on the server: false, and it corrects itself after hydration.
   const dark = useSyncExternalStore(
-    suscribirTema,
+    subscribeTheme,
     () => document.documentElement.classList.contains("dark"),
     () => false
   );

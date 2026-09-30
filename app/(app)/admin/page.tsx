@@ -1,15 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { LIMITES_TIER, inicioDeMes } from "@/lib/limits";
-import { fechaCorta } from "@/lib/format";
+import { TIER_LIMITS, startOfMonth } from "@/lib/limits";
+import { formatShortDate } from "@/lib/format";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 
 export default async function AdminPage() {
-  const inicioMes = inicioDeMes();
+  const monthStart = startOfMonth();
 
-  const [usuarios, uso, usoMes, altasMes, solicitudesNuevas] = await Promise.all([
+  const [users, usage, monthUsage, monthSignups, newRequests] = await Promise.all([
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       select: {
@@ -17,33 +17,33 @@ export default async function AdminPage() {
         name: true,
         email: true,
         createdAt: true,
-        estado: true,
+        status: true,
         tier: true,
         role: true,
-        _count: { select: { pacientes: true, consultas: true } },
+        _count: { select: { patients: true, consultations: true } },
       },
     }),
-    prisma.consulta.groupBy({
+    prisma.consultation.groupBy({
       by: ["userId"],
       _sum: { inputTokens: true, outputTokens: true },
       _max: { createdAt: true },
       _count: true,
     }),
-    prisma.consulta.groupBy({
+    prisma.consultation.groupBy({
       by: ["userId"],
-      where: { createdAt: { gte: inicioMes } },
+      where: { createdAt: { gte: monthStart } },
       _sum: { inputTokens: true, outputTokens: true },
       _count: true,
     }),
-    prisma.user.count({ where: { createdAt: { gte: inicioMes } } }),
-    prisma.solicitud.count({ where: { estado: "NUEVA" } }),
+    prisma.user.count({ where: { createdAt: { gte: monthStart } } }),
+    prisma.featureRequest.count({ where: { status: "NEW" } }),
   ]);
 
-  const usoPorUser = new Map(uso.map((u) => [u.userId, u]));
-  const usoMesPorUser = new Map(usoMes.map((u) => [u.userId, u]));
+  const usageByUser = new Map(usage.map((u) => [u.userId, u]));
+  const monthUsageByUser = new Map(monthUsage.map((u) => [u.userId, u]));
 
-  const activos = usuarios.filter((u) => u.estado === "ACTIVE").length;
-  const tokensMes = usoMes.reduce(
+  const activeCount = users.filter((u) => u.status === "ACTIVE").length;
+  const monthTokens = monthUsage.reduce(
     (acc, u) => acc + (u._sum.inputTokens ?? 0) + (u._sum.outputTokens ?? 0),
     0
   );
@@ -59,29 +59,29 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      {/* Stats globales */}
+      {/* Global stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Nutriólogos" value={usuarios.length} nota={`+${altasMes} este mes`} />
-        <StatCard label="Cuentas activas" value={activos} nota={`${usuarios.length - activos} suspendidas`} />
+        <StatCard label="Nutriólogos" value={users.length} note={`+${monthSignups} este mes`} />
+        <StatCard label="Cuentas activas" value={activeCount} note={`${users.length - activeCount} suspendidas`} />
         <StatCard
           label="Consultas este mes"
-          value={usoMes.reduce((acc, u) => acc + u._count, 0)}
-          nota="Todas las cuentas"
+          value={monthUsage.reduce((acc, u) => acc + u._count, 0)}
+          note="Todas las cuentas"
         />
-        <StatCard label="Tokens IA este mes" value={tokensMes} nota="Input + output" />
+        <StatCard label="Tokens IA este mes" value={monthTokens} note="Input + output" />
         <StatCard
           label="Solicitudes nuevas"
-          value={solicitudesNuevas}
-          nota="Sugerencias de nutriólogos"
+          value={newRequests}
+          note="Sugerencias de nutriólogos"
         />
       </div>
 
-      {/* Tabla de cuentas */}
+      {/* Accounts table */}
       <Card className="overflow-hidden">
         <div className="border-b border-border px-5 py-4">
           <span className="font-display text-[15px] font-bold text-text">Cuentas</span>
         </div>
-        {usuarios.length === 0 ? (
+        {users.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-text-3">
             Aún no hay cuentas registradas.
           </p>
@@ -101,12 +101,12 @@ export default async function AdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {usuarios.map((u) => {
-                  const total = usoPorUser.get(u.id);
-                  const mes = usoMesPorUser.get(u.id);
+                {users.map((u) => {
+                  const total = usageByUser.get(u.id);
+                  const month = monthUsageByUser.get(u.id);
                   const tokens =
                     (total?._sum.inputTokens ?? 0) + (total?._sum.outputTokens ?? 0);
-                  const ultima = total?._max.createdAt;
+                  const lastActivity = total?._max.createdAt;
                   return (
                     <tr
                       key={u.id}
@@ -114,7 +114,7 @@ export default async function AdminPage() {
                     >
                       <td className="px-5 py-3">
                         <Link href={`/admin/cuentas/${u.id}`} className="flex items-center gap-3">
-                          <Avatar nombre={u.name ?? u.email} />
+                          <Avatar name={u.name ?? u.email} />
                           <span className="min-w-0">
                             <span className="block truncate font-semibold text-text">
                               {u.name ?? "Sin nombre"}
@@ -129,12 +129,12 @@ export default async function AdminPage() {
                         </Link>
                       </td>
                       <td className="whitespace-nowrap px-3 py-3 text-text-2">
-                        {fechaCorta(u.createdAt)}
+                        {formatShortDate(u.createdAt)}
                       </td>
                       <td className="px-3 py-3">
-                        {u.estado === "ACTIVE" ? (
+                        {u.status === "ACTIVE" ? (
                           <Badge tone="success">Activa</Badge>
-                        ) : u.estado === "SUSPENDED" ? (
+                        ) : u.status === "SUSPENDED" ? (
                           <Badge tone="danger">Suspendida</Badge>
                         ) : (
                           <Badge tone="warning">Pendiente</Badge>
@@ -142,20 +142,20 @@ export default async function AdminPage() {
                       </td>
                       <td className="px-3 py-3">
                         <Badge tone={u.tier === "FREE" ? "neutral" : "primary"}>
-                          {LIMITES_TIER[u.tier].nombre}
+                          {TIER_LIMITS[u.tier].name}
                         </Badge>
                       </td>
                       <td className="px-3 py-3 text-right font-mono tabular-nums text-text-2">
-                        {u._count.pacientes}
+                        {u._count.patients}
                       </td>
                       <td className="px-3 py-3 text-right font-mono tabular-nums text-text-2">
-                        {u._count.consultas} ({mes?._count ?? 0})
+                        {u._count.consultations} ({month?._count ?? 0})
                       </td>
                       <td className="px-3 py-3 text-right font-mono tabular-nums text-text-2">
                         {tokens.toLocaleString("es-MX")}
                       </td>
                       <td className="whitespace-nowrap px-5 py-3 text-right text-text-3">
-                        {ultima ? fechaCorta(ultima) : "—"}
+                        {lastActivity ? formatShortDate(lastActivity) : "—"}
                       </td>
                     </tr>
                   );
@@ -169,14 +169,14 @@ export default async function AdminPage() {
   );
 }
 
-function StatCard({ label, value, nota }: { label: string; value: number; nota: string }) {
+function StatCard({ label, value, note }: { label: string; value: number; note: string }) {
   return (
     <Card className="p-4.5">
       <div className="text-[11px] font-semibold uppercase tracking-wide text-text-3">{label}</div>
       <div className="mt-1.5 font-mono text-[26px] font-semibold tabular-nums text-text">
         {value.toLocaleString("es-MX")}
       </div>
-      <div className="mt-0.5 text-[11.5px] text-text-3">{nota}</div>
+      <div className="mt-0.5 text-[11.5px] text-text-3">{note}</div>
     </Card>
   );
 }

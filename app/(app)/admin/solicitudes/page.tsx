@@ -1,33 +1,34 @@
 import Link from "next/link";
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { LIMITES_TIER } from "@/lib/limits";
+import { TIER_LIMITS } from "@/lib/limits";
 import {
-  ESTADOS_SOLICITUD,
-  SOLICITUD_LABELS,
-  SOLICITUD_TONES,
-  VEREDICTO_LABELS,
-  VEREDICTO_TONES,
-  type VeredictoIA,
-} from "@/lib/solicitudes";
-import { fechaCorta } from "@/lib/format";
-import { actualizarSolicitudAdmin } from "@/app/actions/solicitudes";
+  FEATURE_REQUEST_STATUSES,
+  STATUS_LABELS,
+  STATUS_TONES,
+  VERDICT_LABELS,
+  VERDICT_TONES,
+  type AiVerdict,
+} from "@/lib/featureRequests";
+import { formatShortDate } from "@/lib/format";
+import { updateFeatureRequestAdmin } from "@/app/actions/featureRequests";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/components/ui/cn";
 
-export default async function SolicitudesAdminPage({
+export default async function AdminFeatureRequestsPage({
   searchParams,
 }: {
   searchParams: Promise<{ estado?: string }>;
 }) {
+  // `estado` is a URL query param, which stays in Spanish
   const { estado } = await searchParams;
-  const filtro = ESTADOS_SOLICITUD.find((e) => e === estado);
+  const filter = FEATURE_REQUEST_STATUSES.find((s) => s === estado);
 
-  const where: Prisma.SolicitudWhereInput = filtro ? { estado: filtro } : {};
-  const solicitudes = await prisma.solicitud.findMany({
+  const where: Prisma.FeatureRequestWhereInput = filter ? { status: filter } : {};
+  const requests = await prisma.featureRequest.findMany({
     where,
     orderBy: { createdAt: "desc" },
     include: { user: { select: { id: true, name: true, email: true, tier: true } } },
@@ -48,80 +49,80 @@ export default async function SolicitudesAdminPage({
         </p>
       </div>
 
-      {/* Filtro por estado */}
+      {/* Status filter */}
       <div className="flex flex-wrap gap-2">
-        <FiltroPill href="/admin/solicitudes" activo={!filtro}>
+        <FilterPill href="/admin/solicitudes" active={!filter}>
           Todas
-        </FiltroPill>
-        {ESTADOS_SOLICITUD.map((e) => (
-          <FiltroPill key={e} href={`/admin/solicitudes?estado=${e}`} activo={filtro === e}>
-            {SOLICITUD_LABELS[e]}
-          </FiltroPill>
+        </FilterPill>
+        {FEATURE_REQUEST_STATUSES.map((s) => (
+          <FilterPill key={s} href={`/admin/solicitudes?estado=${s}`} active={filter === s}>
+            {STATUS_LABELS[s]}
+          </FilterPill>
         ))}
       </div>
 
-      {solicitudes.length === 0 ? (
+      {requests.length === 0 ? (
         <Card>
           <p className="px-5 py-8 text-center text-sm text-text-3">
-            {filtro
-              ? `No hay solicitudes en estado ${SOLICITUD_LABELS[filtro].toLowerCase()}.`
+            {filter
+              ? `No hay solicitudes en estado ${STATUS_LABELS[filter].toLowerCase()}.`
               : "Aún no hay solicitudes."}
           </p>
         </Card>
       ) : (
-        solicitudes.map((s) => (
-          <Card key={s.id} className="p-4.5">
+        requests.map((r) => (
+          <Card key={r.id} className="p-4.5">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="text-sm font-bold text-text">{s.titulo}</span>
-                  <Badge tone={SOLICITUD_TONES[s.estado]}>{SOLICITUD_LABELS[s.estado]}</Badge>
-                  {s.analizadoAt && s.veredictoIA && (
-                    <Badge tone={VEREDICTO_TONES[s.veredictoIA as VeredictoIA] ?? "neutral"}>
-                      IA: {VEREDICTO_LABELS[s.veredictoIA as VeredictoIA] ?? s.veredictoIA}
+                  <span className="text-sm font-bold text-text">{r.title}</span>
+                  <Badge tone={STATUS_TONES[r.status]}>{STATUS_LABELS[r.status]}</Badge>
+                  {r.analyzedAt && r.aiVerdict && (
+                    <Badge tone={VERDICT_TONES[r.aiVerdict as AiVerdict] ?? "neutral"}>
+                      IA: {VERDICT_LABELS[r.aiVerdict as AiVerdict] ?? r.aiVerdict}
                     </Badge>
                   )}
                 </div>
                 <Link
-                  href={`/admin/cuentas/${s.user.id}`}
+                  href={`/admin/cuentas/${r.user.id}`}
                   className="mt-1.5 flex items-center gap-2 hover:underline"
                 >
-                  <Avatar nombre={s.user.name ?? s.user.email} size="sm" />
+                  <Avatar name={r.user.name ?? r.user.email} size="sm" />
                   <span className="truncate text-[12.5px] text-text-2">
-                    {s.user.name ?? "Sin nombre"} · {s.user.email} ·{" "}
-                    {LIMITES_TIER[s.user.tier].nombre}
+                    {r.user.name ?? "Sin nombre"} · {r.user.email} ·{" "}
+                    {TIER_LIMITS[r.user.tier].name}
                   </span>
                 </Link>
               </div>
-              <span className="text-[11.5px] text-text-3">{fechaCorta(s.createdAt)}</span>
+              <span className="text-[11.5px] text-text-3">{formatShortDate(r.createdAt)}</span>
             </div>
 
-            <p className="mt-2.5 whitespace-pre-wrap text-[13px] text-text-2">{s.descripcion}</p>
+            <p className="mt-2.5 whitespace-pre-wrap text-[13px] text-text-2">{r.description}</p>
 
-            {s.analisisIA && (
+            {r.aiAnalysis && (
               <details className="mt-3 rounded-ctl border border-border bg-surface-2 px-3.5 py-2.5">
                 <summary className="cursor-pointer text-xs font-bold text-text-2">
                   Análisis de viabilidad (IA)
-                  {s.analizadoAt && ` · ${fechaCorta(s.analizadoAt)}`}
+                  {r.analyzedAt && ` · ${formatShortDate(r.analyzedAt)}`}
                 </summary>
-                <p className="mt-2 whitespace-pre-wrap text-[13px] text-text-2">{s.analisisIA}</p>
+                <p className="mt-2 whitespace-pre-wrap text-[13px] text-text-2">{r.aiAnalysis}</p>
               </details>
             )}
 
             <form
-              action={actualizarSolicitudAdmin}
+              action={updateFeatureRequestAdmin}
               className="mt-3.5 flex flex-col gap-2.5 border-t border-border pt-3.5"
             >
-              <input type="hidden" name="solicitudId" value={s.id} />
+              <input type="hidden" name="requestId" value={r.id} />
               <div className="flex items-center gap-2.5">
                 <select
-                  name="estado"
-                  defaultValue={s.estado}
+                  name="status"
+                  defaultValue={r.status}
                   className="h-9 rounded-ctl border border-border-strong bg-surface px-2.5 text-sm text-text"
                 >
-                  {ESTADOS_SOLICITUD.map((e) => (
-                    <option key={e} value={e}>
-                      {SOLICITUD_LABELS[e]}
+                  {FEATURE_REQUEST_STATUSES.map((s) => (
+                    <option key={s} value={s}>
+                      {STATUS_LABELS[s]}
                     </option>
                   ))}
                 </select>
@@ -130,14 +131,14 @@ export default async function SolicitudesAdminPage({
                 </Button>
               </div>
               <textarea
-                name="respuesta"
-                defaultValue={s.respuestaAdmin ?? s.respuestaIA ?? ""}
+                name="response"
+                defaultValue={r.adminResponse ?? r.aiDraftResponse ?? ""}
                 rows={2}
                 maxLength={2000}
                 placeholder="Respuesta visible para el nutriólogo…"
                 className="w-full rounded-ctl border border-border-strong bg-surface px-2.5 py-2 text-sm text-text"
               />
-              {!s.respuestaAdmin && s.respuestaIA && (
+              {!r.adminResponse && r.aiDraftResponse && (
                 <p className="text-[11.5px] text-text-3">
                   Borrador sugerido por IA — revísalo antes de guardar.
                 </p>
@@ -150,13 +151,13 @@ export default async function SolicitudesAdminPage({
   );
 }
 
-function FiltroPill({
+function FilterPill({
   href,
-  activo,
+  active,
   children,
 }: {
   href: string;
-  activo: boolean;
+  active: boolean;
   children: React.ReactNode;
 }) {
   return (
@@ -164,7 +165,7 @@ function FiltroPill({
       href={href}
       className={cn(
         "rounded-pill border px-3 py-1 text-xs font-semibold transition-colors",
-        activo
+        active
           ? "border-primary-soft-brd bg-primary-soft text-primary"
           : "border-border text-text-2 hover:bg-surface-3",
       )}
