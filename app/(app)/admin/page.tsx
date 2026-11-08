@@ -5,6 +5,7 @@ import { formatShortDate } from "@/lib/format";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
+import { BRAND } from "@/lib/brand";
 
 export default async function AdminPage() {
   const monthStart = startOfMonth();
@@ -55,7 +56,7 @@ export default async function AdminPage() {
           Administración
         </h1>
         <p className="mt-0.5 text-sm text-text-3">
-          Cuentas de nutriólogos registradas en Planify
+          Cuentas de nutriólogos registradas en {BRAND.name}
         </p>
       </div>
 

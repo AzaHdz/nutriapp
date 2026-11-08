@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { BRAND } from "@/lib/brand";
 
 /**
  * Sends the password reset email. Without AUTH_RESEND_KEY (dev), it prints the
@@ -17,13 +18,13 @@ export async function sendResetEmail(email: string, url: string): Promise<void> 
   try {
     const resend = new Resend(key);
     await resend.emails.send({
-      from: process.env.EMAIL_FROM ?? "Planify <onboarding@resend.dev>",
+      from: BRAND.emailFrom,
       to: email,
-      subject: "Restablece tu contraseña de Planify",
+      subject: `Restablece tu contraseña de ${BRAND.name}`,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
           <h2 style="color: #1a1a1a;">Restablece tu contraseña</h2>
-          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta de Planify.</p>
+          <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta de ${BRAND.name}.</p>
           <p style="margin: 24px 0;">
             <a href="${url}" style="background: #16a34a; color: #fff; padding: 12px 24px; border-radius: 999px; text-decoration: none; font-weight: 600;">
               Crear nueva contraseña

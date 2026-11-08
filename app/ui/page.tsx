@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Stat } from "@/components/ui/Stat";
 import { Field } from "@/components/ui/Field";
 import { Input, Textarea, Select } from "@/components/ui/Input";
+import { BRAND } from "@/lib/brand";
 
-export const metadata = { title: "Planify — Kitchen sink UI" };
+export const metadata = { title: `${BRAND.name} — Kitchen sink UI` };
 
 /** Showcase of every primitive in design system 1c.
  *  Public route (outside the (app) group) for checking the look in light/dark. */

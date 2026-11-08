@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { buttonVariants } from "@/components/ui/Button";
 import { ConsultationForm } from "@/components/ConsultationForm";
+import { BRAND } from "@/lib/brand";
 
 export default async function NewConsultationPage({
   searchParams,
@@ -75,7 +76,7 @@ export default async function NewConsultationPage({
           </p>
           <p className="mt-1.5 max-w-xl text-sm text-text-2">
             Usaste las {limit} consultas incluidas este mes. El contador se reinicia el día 1;
-            si necesitas más consultas ahora, contacta al administrador de Planify para ampliar
+            si necesitas más consultas ahora, contacta al administrador de {BRAND.name} para ampliar
             tu plan.
           </p>
           <div className="mt-4">

@@ -4,6 +4,7 @@ import { TIER_LIMITS, consultationsUsedThisMonth } from "@/lib/limits";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { SettingsForm } from "@/components/SettingsForm";
+import { BRAND } from "@/lib/brand";
 
 export default async function SettingsPage() {
   const { userId, tier } = await requireUser();
@@ -45,7 +46,7 @@ export default async function SettingsPage() {
             : `${usedThisMonth} de ${plan.consultationsPerMonth} consultas usadas este mes.`}
         </p>
         <p className="mt-1.5 text-[11.5px] text-text-3">
-          Los cambios de plan se gestionan con el administrador de Planify.
+          Los cambios de plan se gestionan con el administrador de {BRAND.name}.
         </p>
       </Card>
     </div>

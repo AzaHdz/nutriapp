@@ -6,6 +6,7 @@ import { NavLink } from "@/components/nav-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar } from "@/components/ui/Avatar";
 import { endOfDay, todayKey, startOfDay } from "@/lib/dates";
+import { BRAND } from "@/lib/brand";
 
 export default async function AppLayout({
   children,
@@ -43,7 +44,7 @@ export default async function AppLayout({
           href="/dashboard"
           className="px-2.5 pb-4 font-display text-lg font-bold tracking-tight text-text"
         >
-          Planify
+          {BRAND.name}
         </Link>
 
         <nav className="flex flex-col gap-0.5">
@@ -114,7 +115,7 @@ export default async function AppLayout({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-border bg-surface-2 px-4 py-3 md:hidden print:hidden">
           <Link href="/dashboard" className="font-display text-lg font-bold text-text">
-            Planify
+            {BRAND.name}
           </Link>
           <div className="flex items-center gap-4">
             <Link href="/pacientes" className="text-sm font-medium text-text-2">

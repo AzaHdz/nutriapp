@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import type { Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { BRAND } from "@/lib/brand";
 
 const providers: NextAuthConfig["providers"] = [
   Credentials({
@@ -50,7 +51,7 @@ if (process.env.AUTH_RESEND_KEY) {
   providers.push(
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.EMAIL_FROM ?? "Planify <onboarding@resend.dev>",
+      from: BRAND.emailFrom,
     })
   );
 }

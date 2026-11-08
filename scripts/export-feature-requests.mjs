@@ -24,7 +24,7 @@ async function main() {
   });
 
   const lines = [
-    `# Solicitudes de funcionalidad — Planify (${isoDate(new Date())})`,
+    `# Solicitudes de funcionalidad — NutriApp (${isoDate(new Date())})`,
     "",
     "Para cada solicitud: analiza su viabilidad contra el estado actual del codebase,",
     "estima el esfuerzo y da un veredicto: VIABLE / NOT_VIABLE / NEEDS_DESIGN.",

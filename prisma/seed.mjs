@@ -1,4 +1,4 @@
-// Demo data seed for Planify.
+// Demo data seed for NutriApp.
 // Run:  npm run db:seed        (loads .env / .env.local automatically)
 // or:   node --env-file=.env --env-file=.env.local prisma/seed.mjs
 //
@@ -13,8 +13,8 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const DEMO_EMAIL = (process.env.SEED_EMAIL ?? "demo@planify.health").toLowerCase();
-const DEMO_PASSWORD = process.env.SEED_PASSWORD ?? "planify123";
+const DEMO_EMAIL = (process.env.SEED_EMAIL ?? "demo@nutriapp.test").toLowerCase();
+const DEMO_PASSWORD = process.env.SEED_PASSWORD ?? "nutriapp123";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const daysAgo = (days) => new Date(Date.now() - days * DAY_MS);

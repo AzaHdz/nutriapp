@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { ageInYears } from "@/lib/calculations";
 import { MealPlan } from "@/lib/ai/planSchema";
 import { PrintButton } from "@/components/PrintButton";
+import { BRAND } from "@/lib/brand";
 
 const LETTERS = ["A", "B", "C", "D", "E", "F"];
 
@@ -137,7 +138,7 @@ export default async function PrintPlanPage({
         <p className="max-w-md text-[11px] text-text-3">
           Plan revisado y aprobado por {n.name ?? "el nutriólogo tratante"}
           {n.licenseNumber ? ` (cédula ${n.licenseNumber})` : ""} el{" "}
-          {consultation.approvedAt.toLocaleDateString("es-MX")} · Elaborado con Planify. Este documento
+          {consultation.approvedAt.toLocaleDateString("es-MX")} · Elaborado con {BRAND.name}. Este documento
           es una herramienta de apoyo nutricional individualizada; no sustituye una valoración médica.
         </p>
         <div className="w-48 shrink-0 border-t border-text-3 pt-1.5 text-center text-[11px] text-text-3">

@@ -5,6 +5,7 @@ import { formatShortDate } from "@/lib/format";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { FeatureRequestForm } from "@/components/FeatureRequestForm";
+import { BRAND } from "@/lib/brand";
 
 export default async function SuggestionsPage() {
   const { userId } = await requireUser();
@@ -21,7 +22,7 @@ export default async function SuggestionsPage() {
           Sugerencias
         </h1>
         <p className="mt-1 text-sm text-text-3">
-          ¿Qué le falta a Planify? Cuéntanos qué funcionalidad necesitas y le daremos
+          ¿Qué le falta a {BRAND.name}? Cuéntanos qué funcionalidad necesitas y le daremos
           seguimiento aquí mismo.
         </p>
       </div>

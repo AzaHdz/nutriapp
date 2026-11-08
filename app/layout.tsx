@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, IBM_Plex_Mono } from "next/font/google";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -21,9 +22,8 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Planify — Nutrición asistida por IA",
-  description:
-    "Expedientes, consultas y planes alimenticios con IA para nutriólogos",
+  title: `${BRAND.name} — ${BRAND.tagline}`,
+  description: BRAND.description,
 };
 
 // Runs before the first paint to avoid a light→dark flash: honors the saved

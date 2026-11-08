@@ -1,4 +1,4 @@
-# Planify
+# NutriApp
 
 Multi-tenant SaaS for nutritionists: patient records, consultations, and **AI-generated meal plans that a professional reviews and approves before they reach the patient**.
 
@@ -38,7 +38,7 @@ docker compose up -d                 # Postgres 16 on :5432
 cp .env.example .env                 # then set AUTH_SECRET and OPENAI_API_KEY (or ANTHROPIC_API_KEY)
 touch .env.local                     # optional overrides; the npm scripts expect the file to exist
 npx prisma migrate dev
-npm run db:seed                      # demo account: demo@planify.health / planify123
+npm run db:seed                      # demo account: demo@nutriapp.test / nutriapp123
 npm run dev                          # http://localhost:3000
 ```
 
@@ -53,6 +53,7 @@ Sign up (`/registro`) → add a patient (with data-consent) → new consultation
 ```
 app/(app)/           authenticated pages; route names are Spanish: pacientes, consultas, agenda, planes, admin, ajustes
 app/actions/         server actions (all tenant-scoped)
+lib/brand.ts         product name, tagline and default email sender (single source of truth)
 lib/ai/              provider dispatch, providers, Zod plan schema, versioned prompts + few-shot examples
 lib/calculations.ts  BMI / BMR (Mifflin-St Jeor) and plan validation
 lib/dates.ts         appointment dates, always in America/Mexico_City
@@ -60,3 +61,17 @@ lib/limits.ts        tiers, monthly quotas, per-consultation generation cap
 prisma/              schema, migrations, demo seed
 scripts/             feature-request export and AI feasibility analysis
 ```
+
+## Rebranding
+
+The product name lives in one place: **`lib/brand.ts`**. The UI, page titles, the plan PDF, emails and error messages all read from it. To rename the product:
+
+1. Change `name` in `lib/brand.ts`. That covers everything users see.
+2. Optional, cosmetic: the `name` in `package.json`, the database/user names in `docker-compose.yml` and `.env.example`, the demo account in `prisma/seed.mjs`, the product name in `scripts/*.mjs`, and this README.
+3. Rename the GitHub repo (`gh repo rename <new-name>`) and the Vercel project if you want them to match.
+
+To use a custom domain, no code changes are needed:
+
+1. Add the domain to the Vercel project (Settings → Domains).
+2. Absolute links (password reset) are built from the request's host, so they follow the new domain automatically.
+3. To send email from it, verify the domain in Resend and set `EMAIL_FROM="<Name> <hello@your-domain.com>"`.

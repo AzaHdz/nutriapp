@@ -33,7 +33,7 @@ const onlyId = flag("--id");
 const limit = flag("--limit") ? Number(flag("--limit")) : Infinity;
 
 function buildPrompt(r) {
-  return `Eres el analista técnico de Planify, la app Next.js de este repositorio (un SaaS para nutriólogos en México). Un nutriólogo (usuario final) pidió la siguiente funcionalidad.
+  return `Eres el analista técnico de NutriApp, la app Next.js de este repositorio (un SaaS para nutriólogos en México). Un nutriólogo (usuario final) pidió la siguiente funcionalidad.
 
 <solicitud>
 Título: ${r.title}

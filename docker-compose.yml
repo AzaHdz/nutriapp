@@ -4,13 +4,13 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: planify
-      POSTGRES_PASSWORD: planify
-      POSTGRES_DB: planify
+      POSTGRES_USER: nutriapp
+      POSTGRES_PASSWORD: nutriapp
+      POSTGRES_DB: nutriapp
     ports:
       - "5432:5432"
     volumes:
-      - planify_pgdata:/var/lib/postgresql/data
+      - nutriapp_pgdata:/var/lib/postgresql/data
 
 volumes:
-  planify_pgdata:
+  nutriapp_pgdata:

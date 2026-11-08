@@ -1,3 +1,4 @@
+import { BRAND } from "@/lib/brand";
 /** Left brand panel on the auth screens.
  *  bg-brand-panel is the same in light and dark mode (deep plum). */
 export function BrandPanel() {
@@ -8,7 +9,7 @@ export function BrandPanel() {
   ];
   return (
     <div className="hidden w-[46%] shrink-0 flex-col bg-brand-panel p-14 lg:flex">
-      <div className="font-display text-2xl font-bold text-[#F7ECF2]">Planify</div>
+      <div className="font-display text-2xl font-bold text-[#F7ECF2]">{BRAND.name}</div>
 
       <div className="mt-auto">
         <h2 className="max-w-md text-pretty font-display text-[38px] font-semibold leading-[1.15] tracking-tight text-[#F7ECF2]">

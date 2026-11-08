@@ -1,13 +1,13 @@
 ---
 name: verify
-description: How to run and verify Planify end-to-end over HTTP (login, server actions, admin panel)
+description: How to run and verify NutriApp end-to-end over HTTP (login, server actions, admin panel)
 ---
 
-# Verify Planify end-to-end
+# Verify NutriApp end-to-end
 
 ## Start
 
-Postgres runs locally via Homebrew (`brew services list` → `postgresql@17`), on :5432.
+Postgres runs locally via Homebrew (`brew services list` → `postgresql@17`), on :5432; the dev database is `nutriapp`.
 
 ```bash
 npx prisma migrate deploy   # apply pending migrations
@@ -17,11 +17,11 @@ AUTH_TRUST_HOST=true npx next start -p 3100   # AUTH_TRUST_HOST is required: wit
 
 `prisma migrate dev` is interactive and fails in non-interactive shells. Use `prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/<ts>_<name>/migration.sql` and then `prisma migrate deploy`. For renames, write the SQL by hand (`ALTER … RENAME`): `migrate diff` emits DROP/CREATE and loses data. Check for drift afterwards: `migrate diff` against the migrated DB must be empty.
 
-To test migrations or destructive flows without touching the dev DB, work on a copy: `createdb planify_mig -T planify` and start the server with `DATABASE_URL=…/planify_mig`.
+To test migrations or destructive flows without touching the dev DB, work on a copy: `createdb nutriapp_mig -T nutriapp` and start the server with `DATABASE_URL=…/nutriapp_mig`.
 
 ## Accounts
 
-- Seed: `demo@planify.health` / `planify123` (`npm run db:seed`).
+- Seed: `demo@nutriapp.test` / `nutriapp123` (`npm run db:seed`).
 - The email in `ADMIN_EMAIL` is auto-promoted to ADMIN on login (override the env var when starting the server for tests).
 
 ## Login with curl (Auth.js Credentials)

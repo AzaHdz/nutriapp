@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { generatePlan } from "@/lib/ai/generatePlan";
 import { MealPlan } from "@/lib/ai/planSchema";
 import { ageInYears, validatePlan } from "@/lib/calculations";
+import { BRAND } from "@/lib/brand";
 import {
   TIER_LIMITS,
   MAX_GENERATIONS_PER_CONSULTATION,
@@ -42,7 +43,7 @@ export async function createConsultation(formData: FormData) {
     if (used >= limit) {
       return {
         ok: false as const,
-        error: `Alcanzaste el límite de ${limit} consultas de tu plan ${TIER_LIMITS[tier].name} este mes. El límite se reinicia el día 1; para ampliarlo, contacta al administrador de Planify.`,
+        error: `Alcanzaste el límite de ${limit} consultas de tu plan ${TIER_LIMITS[tier].name} este mes. El límite se reinicia el día 1; para ampliarlo, contacta al administrador de ${BRAND.name}.`,
       };
     }
   }
