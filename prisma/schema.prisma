@@ -3,8 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // The app connects through the pooler (many short-lived serverless connections).
+  url       = env("DATABASE_URL")
+  // Migrations need a direct connection: poolers don't keep the session state
+  // `prisma migrate` relies on. Locally both point at the same database.
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 // ── Auth.js models (don't rename models/fields: the PrismaAdapter uses them) ──
