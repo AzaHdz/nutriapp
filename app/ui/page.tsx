@@ -20,7 +20,7 @@ export default function UIPage() {
             Kitchen sink
           </h1>
           <p className="mt-1 text-sm text-text-3">
-            Sistema de diseño 1c · Ciruela nutricional. Usa el toggle para ver ambos modos.
+            Sistema de diseño 2 · Verde nutricional. Usa el toggle para ver ambos modos.
           </p>
         </div>
         <ThemeToggle />

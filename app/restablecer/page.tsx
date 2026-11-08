@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { resetPassword } from "@/app/actions/password";
 import { Button } from "@/components/ui/Button";
-import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { BrandMobileHeader, BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default async function ResetPasswordPage({
@@ -19,6 +19,7 @@ export default async function ResetPasswordPage({
 
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-[400px]">
+          <BrandMobileHeader />
           <h1 className="font-display text-2xl font-semibold text-text">
             Crea tu nueva contraseña
           </h1>

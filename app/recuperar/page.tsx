@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requestPasswordReset } from "@/app/actions/password";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { BrandMobileHeader, BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 
 export default async function ForgotPasswordPage({
   searchParams,
@@ -17,6 +17,7 @@ export default async function ForgotPasswordPage({
 
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-[400px]">
+          <BrandMobileHeader />
           <h1 className="font-display text-2xl font-semibold text-text">
             Recupera tu contraseña
           </h1>

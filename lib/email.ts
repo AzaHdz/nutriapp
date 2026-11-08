@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { BRAND } from "@/lib/brand";
+import { BRAND, EMAIL_THEME } from "@/lib/brand";
 
 /**
  * Sends the password reset email. Without AUTH_RESEND_KEY (dev), it prints the
@@ -23,14 +23,14 @@ export async function sendResetEmail(email: string, url: string): Promise<void> 
       subject: `Restablece tu contraseña de ${BRAND.name}`,
       html: `
         <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2 style="color: #1a1a1a;">Restablece tu contraseña</h2>
+          <h2 style="color: ${EMAIL_THEME.text};">Restablece tu contraseña</h2>
           <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta de ${BRAND.name}.</p>
           <p style="margin: 24px 0;">
-            <a href="${url}" style="background: #16a34a; color: #fff; padding: 12px 24px; border-radius: 999px; text-decoration: none; font-weight: 600;">
+            <a href="${url}" style="background: ${EMAIL_THEME.primary}; color: ${EMAIL_THEME.onPrimary}; padding: 12px 24px; border-radius: 999px; text-decoration: none; font-weight: 600;">
               Crear nueva contraseña
             </a>
           </p>
-          <p style="color: #666; font-size: 13px;">
+          <p style="color: ${EMAIL_THEME.muted}; font-size: 13px;">
             El link es válido por 1 hora y solo puede usarse una vez.
             Si no solicitaste este cambio, ignora este correo — tu contraseña actual sigue funcionando.
           </p>

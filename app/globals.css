@@ -1,4 +1,4 @@
-/* NutriApp design tokens · Tailwind CSS 4 · direction 1c "Ciruela nutricional"
+/* NutriApp design tokens · Tailwind CSS 4 · direction 2 "Verde nutricional"
    Dark mode: .dark class on <html> (full token parity). */
 @import "tailwindcss";
 
@@ -8,26 +8,30 @@
 
 :root {
   /* Surfaces and text */
-  --bg: #FBF7F5;            /* app background (rosy ivory) */
+  --bg: #F7F7F8;            /* app background (neutral off-white) */
   --surface: #FFFFFF;       /* cards, tables, modals */
-  --surface-2: #F6F0EE;     /* sidebar, thead */
-  --surface-3: #F1E9E6;     /* row hover, wells, neutral badge */
-  --border: #E9E2E0;
-  --border-strong: #DCD2D8; /* inputs, secondary button */
-  --text: #33202C;          /* 12.9:1 on surface */
-  --text-2: #6E5A66;        /* 5.6:1 */
-  --text-3: #8C7A85;        /* meta ≥12px */
+  --surface-2: #F3F4F5;     /* sidebar, thead */
+  --surface-3: #EEEFF1;     /* row hover, wells, neutral badge */
+  --border: #E5E7E9;
+  --border-strong: #D3D6D9; /* inputs, secondary button */
+  --text: #18191B;          /* 17:1 on surface; neutral grays, brand green only on actions */
+  --text-2: #4F5358;        /* 7.0:1 */
+  --text-3: #5F6369;        /* meta ≥12px */
   /* Brand */
-  --primary: #7A3B5E;
-  --primary-hover: #5E2C48;
-  --on-primary: #FFFEFE;    /* 6.9:1 on primary */
-  --primary-soft: #F5EAF0;
-  --primary-soft-brd: #DEBCCE;
-  --brand-panel: #4C2139;   /* brand panel (login), the same in both modes */
-  --accent: #C2603E;        /* terracotta: charts, AI */
-  --accent-soft: #F9EFE9;
+  --primary: #2B793B;
+  --primary-hover: #22612F;
+  --on-primary: #FFFFFF;    /* 5.4:1 on primary */
+  --primary-soft: #EAF5EC;
+  --primary-soft-brd: #BFDCC5;
+  /* Brand panel (login, deep forest). Same in both modes: not redefined in .dark */
+  --brand-panel: #173D24;
+  --on-brand-panel: #EAF5EC;   /* headings, 10.9:1 */
+  --on-brand-panel-2: #B7D3BE; /* body text, 7.6:1 */
+  --on-brand-panel-3: #8DB39A; /* footnote, 5.2:1 */
+  --accent: #B04B1A;       /* warm orange: charts, AI */
+  --accent-soft: #FBEEE6;
   /* Semantic */
-  --success: #4A7C50;  --success-soft: #E9F2EA;  --success-brd: #C9E0CC;
+  --success: #1F7A63;  --success-soft: #E3F3EE;  --success-brd: #BFE0D5;
   --warning: #96551F;  --warning-soft: #F8EDDE;  --warning-brd: #EBD7B8;
   --danger:  #B5453C;  --danger-soft: #F9E9E7;   --danger-brd: #EED0CC;
   --info:    #4A63A8;  --info-soft: #EBEFF8;     --info-brd: #CCD6EC;
@@ -38,24 +42,23 @@
 }
 
 .dark {
-  --bg: #1B1418;
-  --surface: #251C21;
-  --surface-2: #221A1F;
-  --surface-3: #2E242A;
-  --border: #3B2F36;
-  --border-strong: #4A3C43;
-  --text: #F1EAEE;          /* 14.2:1 */
-  --text-2: #C4B5BD;
-  --text-3: #9A8B93;
-  --primary: #C77BA0;       /* 5.1:1 on surface */
-  --primary-hover: #D9A2BE;
-  --on-primary: #2B0E1F;
-  --primary-soft: #3A2430;
-  --primary-soft-brd: #573B4A;
-  --brand-panel: #4C2139;
-  --accent: #E08B63;
-  --accent-soft: #3C2A22;
-  --success: #7FB585;  --success-soft: #243026;  --success-brd: #3A5140;
+  --bg: #121314;
+  --surface: #1B1C1E;
+  --surface-2: #161719;
+  --surface-3: #242628;
+  --border: #2C2E31;
+  --border-strong: #3A3D40;
+  --text: #ECEDEE;          /* neutral grays: brand green only on actions */
+  --text-2: #B4B7BA;
+  --text-3: #8D9195;
+  --primary: #6CC07A;       /* 7.5:1 on surface */
+  --primary-hover: #8ED39A;
+  --on-primary: #0B2512;
+  --primary-soft: #1D2B21;
+  --primary-soft-brd: #2F4535;
+  --accent: #F0965A;
+  --accent-soft: #2E2219;
+  --success: #5FC0A3;  --success-soft: #1B2A26;  --success-brd: #2E4740;
   --warning: #DEA860;  --warning-soft: #3A2E1C;  --warning-brd: #5C4826;
   --danger:  #E08078;  --danger-soft: #3B2422;   --danger-brd: #5E3532;
   --info:    #8FA5DC;  --info-soft: #242B3D;     --info-brd: #3A4560;
@@ -78,6 +81,9 @@
   --color-primary-soft: var(--primary-soft);
   --color-primary-soft-brd: var(--primary-soft-brd);
   --color-brand-panel: var(--brand-panel);
+  --color-on-brand-panel: var(--on-brand-panel);
+  --color-on-brand-panel-2: var(--on-brand-panel-2);
+  --color-on-brand-panel-3: var(--on-brand-panel-3);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-success: var(--success);
@@ -103,12 +109,12 @@
 
   --radius-chip: 6px;   /* checkbox, small chips */
   --radius-ctl: 10px;   /* inputs, selects */
-  --radius-card: 14px;  /* cards, modales, banners */
+  --radius-card: 20px;  /* cards, modales, banners */
   --radius-pill: 999px; /* buttons, badges, avatars */
 
-  --shadow-sm: 0 1px 2px rgb(58 34 51 / .06);
-  --shadow-md: 0 4px 12px rgb(58 34 51 / .08);
-  --shadow-lg: 0 16px 40px rgb(58 34 51 / .16);
+  --shadow-sm: 0 1px 3px rgb(20 22 24 / .06);
+  --shadow-md: 0 6px 20px rgb(20 22 24 / .07);
+  --shadow-lg: 0 18px 48px rgb(20 22 24 / .14);
 
   --spacing: 4px; /* 4-8-12-16-24-32-48 scale */
 }
@@ -123,23 +129,23 @@ body {
    even when the user has the dark theme on. */
 @media print {
   .dark {
-    --bg: #FBF7F5;
+    --bg: #F7F7F8;
     --surface: #FFFFFF;
-    --surface-2: #F6F0EE;
-    --surface-3: #F1E9E6;
-    --border: #E9E2E0;
-    --border-strong: #DCD2D8;
-    --text: #33202C;
-    --text-2: #6E5A66;
-    --text-3: #8C7A85;
-    --primary: #7A3B5E;
-    --primary-hover: #5E2C48;
-    --on-primary: #FFFEFE;
-    --primary-soft: #F5EAF0;
-    --primary-soft-brd: #DEBCCE;
-    --accent: #C2603E;
-    --accent-soft: #F9EFE9;
-    --success: #4A7C50;  --success-soft: #E9F2EA;  --success-brd: #C9E0CC;
+    --surface-2: #F3F4F5;
+    --surface-3: #EEEFF1;
+    --border: #E5E7E9;
+    --border-strong: #D3D6D9;
+    --text: #18191B;
+    --text-2: #4F5358;
+    --text-3: #5F6369;
+    --primary: #2B793B;
+    --primary-hover: #22612F;
+    --on-primary: #FFFFFF;
+    --primary-soft: #EAF5EC;
+    --primary-soft-brd: #BFDCC5;
+    --accent: #B04B1A;
+    --accent-soft: #FBEEE6;
+    --success: #1F7A63;  --success-soft: #E3F3EE;  --success-brd: #BFE0D5;
     --warning: #96551F;  --warning-soft: #F8EDDE;  --warning-brd: #EBD7B8;
     --danger:  #B5453C;  --danger-soft: #F9E9E7;   --danger-brd: #EED0CC;
     --info:    #4A63A8;  --info-soft: #EBEFF8;     --info-brd: #CCD6EC;

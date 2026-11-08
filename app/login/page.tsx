@@ -4,7 +4,7 @@ import { AuthError } from "next-auth";
 import { auth, signIn } from "@/lib/auth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { BrandMobileHeader, BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default async function LoginPage({
@@ -25,8 +25,9 @@ export default async function LoginPage({
 
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-[400px]">
+          <BrandMobileHeader />
           <h1 className="font-display text-2xl font-semibold text-text">Inicia sesión</h1>
-          <p className="mb-6 mt-1.5 text-sm text-text-2">Bienvenida de vuelta a tu consulta.</p>
+          <p className="mb-6 mt-1.5 text-sm text-text-2">Qué gusto verte de nuevo.</p>
 
           {ok === "password-reset" && (
             <p className="mb-4 rounded-ctl border border-success-brd bg-success-soft p-3 text-sm text-success">

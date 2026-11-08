@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { signUp } from "@/app/actions/signup";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { BrandMobileHeader, BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default async function SignUpPage({
@@ -22,6 +22,7 @@ export default async function SignUpPage({
 
       <main className="flex flex-1 items-center justify-center p-6">
         <div className="w-full max-w-[400px]">
+          <BrandMobileHeader />
           <h1 className="font-display text-2xl font-semibold text-text">Crear cuenta</h1>
           <p className="mb-6 mt-1.5 text-sm text-text-2">
             Para nutriólogos. Toma menos de un minuto.

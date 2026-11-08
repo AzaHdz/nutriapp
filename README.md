@@ -70,6 +70,8 @@ The product name lives in one place: **`lib/brand.ts`**. The UI, page titles, th
 2. Optional, cosmetic: the `name` in `package.json`, the database/user names in `docker-compose.yml` and `.env.example`, the demo account in `prisma/seed.mjs`, the product name in `scripts/*.mjs`, and this README.
 3. Rename the GitHub repo (`gh repo rename <new-name>`) and the Vercel project if you want them to match.
 
+Colors live in **`app/globals.css`** as semantic tokens (`--primary`, `--surface`, …) with light and dark values; components only use the token classes (`bg-primary`, `text-text-2`, …), never hex values. The one copy outside that file is `EMAIL_THEME` in `lib/brand.ts`, because email clients can't read CSS variables: update it together with the light theme.
+
 To use a custom domain, no code changes are needed:
 
 1. Add the domain to the Vercel project (Settings → Domains).
