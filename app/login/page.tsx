@@ -5,6 +5,7 @@ import { auth, signIn } from "@/lib/auth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default async function LoginPage({
   searchParams,
@@ -69,7 +70,7 @@ export default async function LoginPage({
                   ¿La olvidaste?
                 </Link>
               </span>
-              <Input type="password" name="password" required placeholder="••••••••••" />
+              <PasswordInput name="password" required placeholder="••••••••••" />
             </label>
             <Button type="submit">Entrar a mi consulta</Button>
           </form>

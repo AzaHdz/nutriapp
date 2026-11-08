@@ -5,6 +5,7 @@ import { signUp } from "@/app/actions/signup";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default async function SignUpPage({
   searchParams,
@@ -43,9 +44,8 @@ export default async function SignUpPage({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-text">Contraseña</span>
-              <Input
+              <PasswordInput
                 name="password"
-                type="password"
                 required
                 minLength={8}
                 placeholder="Mínimo 8 caracteres"

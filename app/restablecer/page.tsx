@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { resetPassword } from "@/app/actions/password";
-import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { BrandPanel, TrustSeal } from "@/components/auth/BrandPanel";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default async function ResetPasswordPage({
   searchParams,
@@ -37,8 +37,7 @@ export default async function ResetPasswordPage({
             <input type="hidden" name="token" value={token} />
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-text">Nueva contraseña</span>
-              <Input
-                type="password"
+              <PasswordInput
                 name="password"
                 required
                 minLength={8}
@@ -47,7 +46,7 @@ export default async function ResetPasswordPage({
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="text-xs font-semibold text-text">Confírmala</span>
-              <Input type="password" name="confirmPassword" required minLength={8} placeholder="••••••••••" />
+              <PasswordInput name="confirmPassword" required minLength={8} placeholder="••••••••••" />
             </label>
             <Button type="submit">Guardar contraseña</Button>
           </form>
