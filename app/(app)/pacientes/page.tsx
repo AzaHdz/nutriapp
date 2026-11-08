@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { buttonVariants } from "@/components/ui/Button";
+import { FilterChip } from "@/components/ui/FilterChip";
+import { SearchField } from "@/components/ui/SearchField";
 
 const rangeText = {
   in: "text-range-in",
@@ -67,16 +69,7 @@ export default async function PatientsPage({
 
       {/* Search + filters */}
       <div className="flex flex-wrap items-center gap-2.5">
-        <form className="flex max-w-sm flex-1 items-center gap-2 rounded-pill border border-border-strong bg-surface px-4 py-2">
-          <SearchIcon />
-          <input
-            name="q"
-            defaultValue={query}
-            placeholder="Buscar por nombre o correo…"
-            className="w-full bg-transparent text-sm text-text placeholder:text-text-3 focus:outline-none"
-          />
-          {filter && <input type="hidden" name="filtro" value={filter} />}
-        </form>
+        <SearchField placeholder="Buscar por nombre o correo…" defaultValue={query} keep={{ filtro: filter }} />
         <FilterChip label="Todos" active={!filter} href={query ? `/pacientes?q=${query}` : "/pacientes"} />
         <FilterChip
           label="Plan pendiente"
@@ -87,7 +80,8 @@ export default async function PatientsPage({
 
       <Card className="overflow-hidden">
         {/* thead */}
-        <div className="grid grid-cols-[2fr_1.1fr_1.3fr_1.1fr_0.7fr] items-center gap-2 border-b border-border bg-surface-2 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-text-3">
+        {/* Table header on md+; on mobile each row becomes a compact card */}
+        <div className="hidden grid-cols-[2fr_1.1fr_1.3fr_1.1fr_0.7fr] items-center gap-2 border-b border-border bg-surface-2 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-text-3 md:grid">
           <span>Paciente</span>
           <span>Última consulta</span>
           <span>Objetivo</span>
@@ -115,23 +109,33 @@ export default async function PatientsPage({
               <Link
                 key={p.id}
                 href={`/pacientes/${p.id}`}
-                className="grid grid-cols-[2fr_1.1fr_1.3fr_1.1fr_0.7fr] items-center gap-2 border-b border-border px-5 py-3 transition-colors last:border-0 hover:bg-surface-3"
+                className="flex items-center gap-3 border-b border-border px-4 py-3 transition-colors last:border-0 hover:bg-surface-3 md:grid md:grid-cols-[2fr_1.1fr_1.3fr_1.1fr_0.7fr] md:gap-2 md:px-5"
               >
-                <span className="flex items-center gap-2.5">
+                <span className="flex min-w-0 flex-1 items-center gap-2.5">
                   <Avatar name={p.name} />
                   <span className="min-w-0">
                     <span className="block truncate text-[13.5px] font-semibold text-text">{p.name}</span>
-                    <span className="block truncate text-[11.5px] text-text-3">{p.email ?? "—"}</span>
+                    <span className="hidden truncate text-[11.5px] text-text-3 md:block">{p.email ?? "—"}</span>
+                    {/* Mobile meta line: replaces the date and BMI columns */}
+                    <span className="flex items-center gap-1.5 font-mono text-[11.5px] tabular-nums text-text-3 md:hidden">
+                      {latest ? formatShortDate(latest.createdAt) : "Sin consultas"}
+                      {bmiValue != null && bmiClass && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span className={rangeText[bmiClass.range]}>IMC {bmiValue.toFixed(1)}</span>
+                        </>
+                      )}
+                    </span>
                   </span>
                 </span>
-                <span className="font-mono text-[12.5px] tabular-nums text-text-2">
+                <span className="hidden font-mono text-[12.5px] tabular-nums text-text-2 md:block">
                   {latest ? formatShortDate(latest.createdAt) : "—"}
                 </span>
-                <span className="truncate text-[13px] text-text">{latest?.goals ?? "—"}</span>
-                <span>
+                <span className="hidden truncate text-[13px] text-text md:block">{latest?.goals ?? "—"}</span>
+                <span className="shrink-0">
                   <Badge tone={planBadge.tone}>{planBadge.label}</Badge>
                 </span>
-                <span className={`flex items-center gap-1.5 font-mono text-[12.5px] tabular-nums ${bmiClass ? rangeText[bmiClass.range] : "text-text-3"}`}>
+                <span className={`hidden items-center gap-1.5 font-mono text-[12.5px] tabular-nums md:flex ${bmiClass ? rangeText[bmiClass.range] : "text-text-3"}`}>
                   {bmiValue != null ? bmiValue.toFixed(1) : "—"}
                   {bmiClass && <span className={`size-1.5 rounded-full ${rangeDot[bmiClass.range]}`} />}
                 </span>
@@ -153,27 +157,3 @@ const rangeDot = {
   out: "bg-range-out",
   critical: "bg-range-critical",
 } as const;
-
-function FilterChip({ label, active, href }: { label: string; active: boolean; href: string }) {
-  return (
-    <Link
-      href={href}
-      className={
-        active
-          ? "rounded-pill border border-primary-soft-brd bg-primary-soft px-3.5 py-1.5 text-[12.5px] font-semibold text-primary"
-          : "rounded-pill border border-border-strong px-3.5 py-1.5 text-[12.5px] font-medium text-text-2 transition-colors hover:bg-surface-3"
-      }
-    >
-      {label}
-    </Link>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-text-3" aria-hidden>
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  );
-}

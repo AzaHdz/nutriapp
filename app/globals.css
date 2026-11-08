@@ -35,6 +35,8 @@
   --warning: #96551F;  --warning-soft: #F8EDDE;  --warning-brd: #EBD7B8;
   --danger:  #B5453C;  --danger-soft: #F9E9E7;   --danger-brd: #EED0CC;
   --info:    #4A63A8;  --info-soft: #EBEFF8;     --info-brd: #CCD6EC;
+  /* Backdrop behind sheets and dialogs (same in both modes) */
+  --overlay: rgb(0 0 0 / .45);
   /* Clinical status = aliases of the semantic colors */
   --range-in: var(--success);
   --range-out: var(--warning);
@@ -84,6 +86,7 @@
   --color-on-brand-panel: var(--on-brand-panel);
   --color-on-brand-panel-2: var(--on-brand-panel-2);
   --color-on-brand-panel-3: var(--on-brand-panel-3);
+  --color-overlay: var(--overlay);
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --color-success: var(--success);

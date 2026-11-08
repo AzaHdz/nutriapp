@@ -130,7 +130,8 @@ export default async function PatientPage({
             </div>
           )}
         </div>
-        <div className="flex gap-2.5">
+        {/* Full-width row on mobile, with the main action first; inline on sm+. */}
+        <div className="flex w-full flex-wrap gap-2.5 sm:w-auto">
           {/* Ghost, not secondary: with three actions in the header, editing the
               details is the least frequent and shouldn't compete with the other two. */}
           <Link
@@ -145,7 +146,10 @@ export default async function PatientPage({
           >
             Agendar cita
           </Link>
-          <Link href={`/consultas/nueva?paciente=${patient.id}`} className={buttonVariants({ size: "sm" })}>
+          <Link
+            href={`/consultas/nueva?paciente=${patient.id}`}
+            className={buttonVariants({ size: "sm", className: "order-first w-full sm:order-none sm:w-auto" })}
+          >
             + Nueva consulta
           </Link>
         </div>
