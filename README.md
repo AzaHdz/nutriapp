@@ -77,3 +77,5 @@ To use a custom domain, no code changes are needed:
 1. Add the domain to the Vercel project (Settings → Domains).
 2. Absolute links (password reset) are built from the request's host, so they follow the new domain automatically.
 3. To send email from it, verify the domain in Resend and set `EMAIL_FROM="<Name> <hello@your-domain.com>"`.
+
+<!-- prueba de ramas de Neon por preview -->
