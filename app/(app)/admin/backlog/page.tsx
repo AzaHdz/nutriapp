@@ -17,6 +17,8 @@ import {
   BACKLOG_TYPE_LABELS,
   BACKLOG_TYPE_TONES,
   BUG_SEVERITY_LABELS,
+  backlogItemToClaudeTask,
+  backlogItemsToPriorityList,
   compareBacklogItems,
 } from "@/lib/backlog";
 import { formatShortDate } from "@/lib/format";
@@ -26,6 +28,7 @@ import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/components/ui/cn";
 import { BacklogItemForm } from "@/components/backlog/BacklogItemForm";
 import { BacklogStatusForm } from "@/components/backlog/BacklogStatusForm";
+import { CopyTextButton } from "@/components/backlog/CopyTextButton";
 
 type Filters = { status?: BacklogStatus; type?: BacklogType; priority?: BacklogPriority };
 
@@ -76,6 +79,9 @@ export default async function AdminBacklogPage({
     prisma.backlogItem.groupBy({ by: ["status"], where: base, _count: true }),
   ]);
   items.sort(compareBacklogItems);
+
+  // "Copiar lista": open items among the visible ones (current filters), in backlog order.
+  const priorityList = backlogItemsToPriorityList(items);
 
   const countByStatus = new Map(counts.map((c) => [c.status, c._count]));
   const total = counts.reduce((acc, c) => acc + c._count, 0);
@@ -157,6 +163,15 @@ export default async function AdminBacklogPage({
         </div>
       </div>
 
+      {priorityList && (
+        <div className="flex flex-col gap-1">
+          <CopyTextButton text={priorityList} label="Copiar lista" />
+          <p className="text-[11.5px] text-text-3">
+            Copia los pendientes abiertos visibles para pedirle a Claude que los priorice.
+          </p>
+        </div>
+      )}
+
       {items.length === 0 ? (
         <Card>
           <p className="px-5 py-8 text-center text-sm text-text-3">
@@ -237,6 +252,10 @@ export default async function AdminBacklogPage({
             {item.featureRequests.length > 0 && (
               <LinkedRequests requests={item.featureRequests} />
             )}
+
+            <div className="mt-3.5">
+              <CopyTextButton text={backlogItemToClaudeTask(item)} label="Copiar para Claude" />
+            </div>
 
             <div className="mt-3.5 border-t border-border pt-3.5">
               <BacklogStatusForm
