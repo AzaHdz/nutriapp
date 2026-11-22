@@ -62,7 +62,7 @@ export default async function PrintPlanPage({
         <div className="text-right">
           <div className="font-display text-lg font-bold text-text">{n.name ?? "Nutriólogo(a)"}</div>
           <div className="text-[12.5px] text-text-2">
-            Nutrióloga clínica
+            Nutrición clínica
             {n.licenseNumber ? ` · Cédula profesional ${n.licenseNumber}` : ""}
           </div>
           <div className="text-[12.5px] text-text-3">{n.email}</div>

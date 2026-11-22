@@ -43,7 +43,7 @@ export default async function AppLayout({
         ])
       : [0, 0];
 
-  const displayName = session?.user?.name ?? session?.user?.email ?? "Nutriólogo";
+  const displayName = session?.user?.name ?? session?.user?.email ?? "Nutriólogo(a)";
 
   const nav = getNavItems({ role, badges: { todaysAppointments, pendingPlans, newRequests, backlogInbox } });
 
@@ -76,7 +76,7 @@ export default async function AppLayout({
             <Avatar name={displayName} size="md" />
             <div className="min-w-0 flex-1">
               <div className="truncate text-[12.5px] font-semibold text-text">{displayName}</div>
-              <div className="text-[11px] text-text-3">Nutrióloga clínica</div>
+              <div className="text-[11px] text-text-3">Nutrición clínica</div>
             </div>
             <ThemeToggle />
           </div>
