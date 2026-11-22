@@ -15,6 +15,9 @@ export const BACKLOG_TYPES: BacklogType[] = ["BUG", "IMPROVEMENT", "TECH_DEBT"];
 export const BACKLOG_PRIORITIES: BacklogPriority[] = ["P1", "P2", "P3", "P4"];
 export const BUG_SEVERITIES: BugSeverity[] = ["BLOCKER", "MAJOR", "MINOR", "COSMETIC"];
 
+/** Open statuses: the only ones a feature request can be linked to. */
+export const OPEN_BACKLOG_STATUSES: BacklogStatus[] = ["INBOX", "TODO", "IN_PROGRESS"];
+
 /** Statuses that close an item: moving into one stamps resolvedAt. */
 export const RESOLVED_STATUSES: BacklogStatus[] = ["DONE", "WONT_FIX"];
 

@@ -14,6 +14,10 @@ export const FEATURE_REQUEST_STATUSES: FeatureRequestStatus[] = [
 export const OPEN_STATUSES: FeatureRequestStatus[] = ["NEW", "IN_REVIEW"];
 export const MAX_OPEN_REQUESTS = 10;
 
+// Linked requests in these statuses become IMPLEMENTED when their backlog item
+// is marked DONE. REJECTED is left alone (the admin already said no).
+export const IMPLEMENTED_ON_DONE_STATUSES: FeatureRequestStatus[] = ["NEW", "IN_REVIEW", "APPROVED"];
+
 export const STATUS_LABELS: Record<FeatureRequestStatus, string> = {
   NEW: "Nueva",
   IN_REVIEW: "En revisión",

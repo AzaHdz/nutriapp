@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/components/ui/cn";
+import { FeatureRequestBacklogLink } from "@/components/backlog/FeatureRequestBacklogLink";
+import { OPEN_BACKLOG_STATUSES, compareBacklogItems } from "@/lib/backlog";
 
 export default async function AdminFeatureRequestsPage({
   searchParams,
@@ -28,11 +30,23 @@ export default async function AdminFeatureRequestsPage({
   const filter = FEATURE_REQUEST_STATUSES.find((s) => s === estado);
 
   const where: Prisma.FeatureRequestWhereInput = filter ? { status: filter } : {};
-  const requests = await prisma.featureRequest.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: { user: { select: { id: true, name: true, email: true, tier: true } } },
-  });
+  const [requests, openItems] = await Promise.all([
+    prisma.featureRequest.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { id: true, name: true, email: true, tier: true } },
+        backlogItem: { select: { id: true, title: true, status: true } },
+      },
+    }),
+    // Candidates for "Ligar a un item existente": open items, in backlog order
+    prisma.backlogItem.findMany({
+      where: { status: { in: OPEN_BACKLOG_STATUSES } },
+      select: { id: true, title: true, status: true, type: true, severity: true, priority: true, createdAt: true },
+    }),
+  ]);
+  openItems.sort(compareBacklogItems);
+  const linkOptions = openItems.map(({ id, title, status }) => ({ id, title, status }));
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -71,7 +85,7 @@ export default async function AdminFeatureRequestsPage({
         </Card>
       ) : (
         requests.map((r) => (
-          <Card key={r.id} className="p-4.5">
+          <Card key={r.id} id={`solicitud-${r.id}`} className="scroll-mt-6 p-4.5">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
@@ -144,6 +158,12 @@ export default async function AdminFeatureRequestsPage({
                 </p>
               )}
             </form>
+
+            <FeatureRequestBacklogLink
+              requestId={r.id}
+              linkedItem={r.backlogItem}
+              openItems={linkOptions}
+            />
           </Card>
         ))
       )}

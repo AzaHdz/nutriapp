@@ -1,5 +1,11 @@
 import Link from "next/link";
-import type { BacklogPriority, BacklogStatus, BacklogType, Prisma } from "@prisma/client";
+import type {
+  BacklogPriority,
+  BacklogStatus,
+  BacklogType,
+  FeatureRequestStatus,
+  Prisma,
+} from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   BACKLOG_PRIORITIES,
@@ -14,6 +20,7 @@ import {
   compareBacklogItems,
 } from "@/lib/backlog";
 import { formatShortDate } from "@/lib/format";
+import { STATUS_LABELS, STATUS_TONES } from "@/lib/featureRequests";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/components/ui/cn";
@@ -53,6 +60,18 @@ export default async function AdminBacklogPage({
   const [items, counts] = await Promise.all([
     prisma.backlogItem.findMany({
       where: { ...base, ...(filters.status && { status: filters.status }) },
+      include: {
+        featureRequests: {
+          orderBy: { createdAt: "asc" },
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            userId: true,
+            user: { select: { name: true, email: true } },
+          },
+        },
+      },
     }),
     prisma.backlogItem.groupBy({ by: ["status"], where: base, _count: true }),
   ]);
@@ -148,7 +167,7 @@ export default async function AdminBacklogPage({
         </Card>
       ) : (
         items.map((item) => (
-          <Card key={item.id} className="p-4.5">
+          <Card key={item.id} id={`item-${item.id}`} className="scroll-mt-6 p-4.5">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="min-w-0">
                 <span className="text-sm font-bold text-text">{item.title}</span>
@@ -213,6 +232,10 @@ export default async function AdminBacklogPage({
                   <p className="mt-1 break-all font-mono text-[12px] text-text-3">{item.commitRef}</p>
                 )}
               </div>
+            )}
+
+            {item.featureRequests.length > 0 && (
+              <LinkedRequests requests={item.featureRequests} />
             )}
 
             <div className="mt-3.5 border-t border-border pt-3.5">
@@ -286,5 +309,42 @@ function FilterPill({
     >
       {children}
     </Link>
+  );
+}
+
+/** Feature requests linked to an item: "Pedido por N nutriólogos" + the list. */
+function LinkedRequests({
+  requests,
+}: {
+  requests: {
+    id: string;
+    title: string;
+    status: FeatureRequestStatus;
+    userId: string;
+    user: { name: string | null; email: string };
+  }[];
+}) {
+  // Count people, not requests: one nutritionist may have asked twice.
+  const people = new Set(requests.map((r) => r.userId)).size;
+  return (
+    <details className="mt-3 rounded-ctl border border-primary-soft-brd bg-primary-soft px-3.5 py-2.5">
+      <summary className="cursor-pointer text-xs font-bold text-primary">
+        Pedido por {people} {people === 1 ? "nutriólogo" : "nutriólogos"}
+      </summary>
+      <ul className="mt-2 flex flex-col gap-1.5">
+        {requests.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+            <Link
+              href={`/admin/solicitudes#solicitud-${r.id}`}
+              className="font-semibold text-text hover:underline"
+            >
+              {r.title}
+            </Link>
+            <span className="text-text-3">· {r.user.name ?? r.user.email}</span>
+            <Badge tone={STATUS_TONES[r.status]}>{STATUS_LABELS[r.status]}</Badge>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
