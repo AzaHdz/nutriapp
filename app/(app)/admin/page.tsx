@@ -10,7 +10,7 @@ import { BRAND } from "@/lib/brand";
 export default async function AdminPage() {
   const monthStart = startOfMonth();
 
-  const [users, usage, monthUsage, monthSignups, newRequests] = await Promise.all([
+  const [users, usage, monthUsage, monthSignups, newRequests, backlogInbox] = await Promise.all([
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       select: {
@@ -38,6 +38,7 @@ export default async function AdminPage() {
     }),
     prisma.user.count({ where: { createdAt: { gte: monthStart } } }),
     prisma.featureRequest.count({ where: { status: "NEW" } }),
+    prisma.backlogItem.count({ where: { status: "INBOX" } }),
   ]);
 
   const usageByUser = new Map(usage.map((u) => [u.userId, u]));
@@ -74,6 +75,12 @@ export default async function AdminPage() {
           label="Solicitudes nuevas"
           value={newRequests}
           note="Sugerencias de nutriólogos"
+        />
+        <StatCard
+          label="Backlog en bandeja"
+          value={backlogInbox}
+          note="Bugs y mejoras por clasificar →"
+          href="/admin/backlog"
         />
       </div>
 
@@ -170,9 +177,19 @@ export default async function AdminPage() {
   );
 }
 
-function StatCard({ label, value, note }: { label: string; value: number; note: string }) {
-  return (
-    <Card className="p-4.5">
+function StatCard({
+  label,
+  value,
+  note,
+  href,
+}: {
+  label: string;
+  value: number;
+  note: string;
+  href?: string;
+}) {
+  const card = (
+    <Card className={href ? "h-full p-4.5 transition-colors hover:bg-surface-3" : "p-4.5"}>
       <div className="text-[11px] font-semibold uppercase tracking-wide text-text-3">{label}</div>
       <div className="mt-1.5 font-mono text-[26px] font-semibold tabular-nums text-text">
         {value.toLocaleString("es-MX")}
@@ -180,4 +197,5 @@ function StatCard({ label, value, note }: { label: string; value: number; note: 
       <div className="mt-0.5 text-[11.5px] text-text-3">{note}</div>
     </Card>
   );
+  return href ? <Link href={href}>{card}</Link> : card;
 }

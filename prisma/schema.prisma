@@ -202,10 +202,14 @@ model FeatureRequest {
   aiVerdict       String? // "VIABLE" | "NOT_VIABLE" | "NEEDS_DESIGN"
   aiDraftResponse String? // draft reply to the nutritionist; only published if the admin saves it
   analyzedAt      DateTime?
+  // Internal backlog item this request was folded into (no UI yet)
+  backlogItemId   String?
+  backlogItem     BacklogItem?         @relation(fields: [backlogItemId], references: [id], onDelete: SetNull)
   createdAt       DateTime             @default(now())
 
   @@index([userId])
   @@index([status])
+  @@index([backlogItemId])
 }
 
 enum FeatureRequestStatus {
@@ -214,4 +218,62 @@ enum FeatureRequestStatus {
   APPROVED
   REJECTED
   IMPLEMENTED
+}
+
+// ── Internal backlog (admin only, /admin/backlog) ───────────────────────
+// Bugs and improvements the admin tracks for themselves. Not tenant data and
+// never shown to nutritionists (that's FeatureRequest).
+
+model BacklogItem {
+  id              String           @id @default(cuid())
+  type            BacklogType
+  title           String
+  description     String           @default("")
+  priority        BacklogPriority  @default(P3)
+  severity        BugSeverity? // only meaningful for bugs
+  area            String? // free text: "agenda", "planes", "auth"…
+  status          BacklogStatus    @default(INBOX)
+  // Context captured automatically by the quick-capture button
+  pageUrl         String?
+  userAgent       String?
+  viewport        String? // "390x844"
+  stepsToRepro    String?
+  // Resolution
+  resolution      String?
+  commitRef       String? // commit SHA or PR URL
+  resolvedAt      DateTime? // set when moved to DONE or WONT_FIX
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  featureRequests FeatureRequest[]
+
+  @@index([status])
+  @@index([priority])
+}
+
+enum BacklogType {
+  BUG
+  IMPROVEMENT
+  TECH_DEBT
+}
+
+enum BacklogPriority {
+  P1
+  P2
+  P3
+  P4
+}
+
+enum BugSeverity {
+  BLOCKER
+  MAJOR
+  MINOR
+  COSMETIC
+}
+
+enum BacklogStatus {
+  INBOX
+  TODO
+  IN_PROGRESS
+  DONE
+  WONT_FIX
 }

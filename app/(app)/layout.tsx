@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Avatar } from "@/components/ui/Avatar";
 import { endOfDay, todayKey, startOfDay } from "@/lib/dates";
 import { BRAND } from "@/lib/brand";
+import { BacklogQuickCapture } from "@/components/backlog/BacklogQuickCapture";
 
 export default async function AppLayout({
   children,
@@ -33,13 +34,18 @@ export default async function AppLayout({
     },
   });
 
-  // "Solicitudes" badge (admin only): unreviewed suggestions.
-  const newRequests =
-    role === "ADMIN" ? await prisma.featureRequest.count({ where: { status: "NEW" } }) : 0;
+  // Admin-only badges: unreviewed suggestions and untriaged backlog items.
+  const [newRequests, backlogInbox] =
+    role === "ADMIN"
+      ? await Promise.all([
+          prisma.featureRequest.count({ where: { status: "NEW" } }),
+          prisma.backlogItem.count({ where: { status: "INBOX" } }),
+        ])
+      : [0, 0];
 
   const displayName = session?.user?.name ?? session?.user?.email ?? "Nutriólogo";
 
-  const nav = getNavItems({ role, badges: { todaysAppointments, pendingPlans, newRequests } });
+  const nav = getNavItems({ role, badges: { todaysAppointments, pendingPlans, newRequests, backlogInbox } });
 
   return (
     <div className="flex min-h-screen">
@@ -95,6 +101,9 @@ export default async function AppLayout({
       </div>
 
       <MobileNav main={nav.main} more={[...nav.secondary, ...nav.admin]} />
+
+      {/* Quick bug/improvement capture into the internal backlog (admin only) */}
+      {role === "ADMIN" && <BacklogQuickCapture />}
     </div>
   );
 }
