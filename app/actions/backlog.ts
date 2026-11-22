@@ -5,7 +5,7 @@ import { z } from "zod";
 import { BacklogPriority, BacklogStatus, BacklogType, BugSeverity } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
-import { OPEN_BACKLOG_STATUSES, RESOLVED_STATUSES } from "@/lib/backlog";
+import { OPEN_BACKLOG_STATUSES, REQUESTED_BY_PREFIX, RESOLVED_STATUSES } from "@/lib/backlog";
 import { IMPLEMENTED_ON_DONE_STATUSES } from "@/lib/featureRequests";
 import { TIME_ZONE } from "@/lib/dates";
 
@@ -211,7 +211,7 @@ export async function createBacklogItemFromRequest(formData: FormData): Promise<
   if (!request) return { ok: false, error: "La solicitud ya no existe" };
   if (request.backlogItemId) return { ok: false, error: "La solicitud ya está ligada a un item" };
 
-  const footer = `Solicitado por ${request.user.name || request.user.email} el ${requestDate(request.createdAt)}`;
+  const footer = `${REQUESTED_BY_PREFIX}${request.user.name || request.user.email} el ${requestDate(request.createdAt)}`;
 
   const linked = await prisma.$transaction(async (tx) => {
     const item = await tx.backlogItem.create({
