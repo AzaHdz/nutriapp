@@ -1,5 +1,6 @@
 import type { Role } from "@prisma/client";
 import {
+  BugIcon,
   BulbIcon,
   CalendarIcon,
   ClipboardIcon,
@@ -24,6 +25,7 @@ export type NavBadges = {
   todaysAppointments: number;
   pendingPlans: number;
   newRequests: number;
+  backlogInbox: number;
 };
 
 /** Hides a zero count instead of showing a "0" badge. */
@@ -53,6 +55,7 @@ export function getNavItems({ role, badges }: { role: Role; badges: NavBadges })
       ? [
           { href: "/admin", label: "Admin", icon: <ShieldIcon />, exact: true },
           { href: "/admin/solicitudes", label: "Solicitudes", icon: <InboxIcon />, badge: count(badges.newRequests) },
+          { href: "/admin/backlog", label: "Backlog", icon: <BugIcon />, badge: count(badges.backlogInbox) },
         ]
       : [];
 
