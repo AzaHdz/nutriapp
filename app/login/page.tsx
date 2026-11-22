@@ -23,7 +23,7 @@ export default async function LoginPage({
     <div className="flex min-h-screen w-full">
       <BrandPanel />
 
-      <main className="flex flex-1 items-center justify-center p-6">
+      <main className="flex flex-1 items-center justify-center bg-surface p-6">
         <div className="w-full max-w-[400px]">
           <BrandMobileHeader />
           <h1 className="font-display text-2xl font-semibold text-text">Inicia sesión</h1>
