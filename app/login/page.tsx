@@ -19,11 +19,12 @@ export default async function LoginPage({
   const googleEnabled = Boolean(process.env.AUTH_GOOGLE_ID);
   const magicLinkEnabled = Boolean(process.env.AUTH_RESEND_KEY);
 
+  // theme-light: the login is always shown in light mode, whatever the user's theme.
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="theme-light flex min-h-screen w-full bg-bg text-text">
       <BrandPanel />
 
-      <main className="flex flex-1 items-center justify-center p-6">
+      <main className="flex flex-1 items-center justify-center bg-surface p-6">
         <div className="w-full max-w-[400px]">
           <BrandMobileHeader />
           <h1 className="font-display text-2xl font-semibold text-text">Inicia sesión</h1>
