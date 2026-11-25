@@ -6,7 +6,15 @@
    colors are semantic tokens that flip on their own when .dark changes. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-:root {
+/* .theme-light: a subtree that always uses the light tokens, even when <html>
+   has .dark (e.g. the login page). It redefines the variables on that element,
+   so its descendants inherit the light values. Avoid `dark:` utilities inside it. */
+.theme-light {
+  color-scheme: light;
+}
+
+:root,
+.theme-light {
   /* Surfaces and text */
   --bg: #F7F7F8;            /* app background (neutral off-white) */
   --surface: #FFFFFF;       /* cards, tables, modals */
